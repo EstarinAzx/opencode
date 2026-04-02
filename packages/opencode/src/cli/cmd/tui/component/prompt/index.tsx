@@ -814,10 +814,10 @@ export function Prompt(props: PromptProps) {
     if (store.mode === "shell") {
       if (!shell().length) return undefined
       const example = shell()[store.placeholder % shell().length]
-      return `>_ Execute protocol... "${example}"`
+      return `› ${example}`
     }
     if (!list().length) return undefined
-    return `>_ NEURAL_LINK READY... "${list()[store.placeholder % list().length]}"`
+    return `› ${list()[store.placeholder % list().length]}`
   })
 
   const spinnerDef = createMemo(() => {
@@ -1071,28 +1071,28 @@ export function Prompt(props: PromptProps) {
             />
             <box flexDirection="row" flexShrink={0} paddingTop={1} gap={1} justifyContent="space-between">
               <box flexDirection="row" gap={1}>
-                <text fg={highlight()}>
-                  {"◈ "}
-                  {(() => {
-                    if (store.mode === "shell") return "SHELL_MODE"
-                    const name = local.agent.current().name
-                    const cyberNames: Record<string, string> = { build: "CONSTRUCT", plan: "STRATAGEM", coordinator: "NEXUS", explore: "RECON", verification: "VALIDATOR" }
-                    return cyberNames[name] ?? name.toUpperCase()
-                  })()}
+                <text selectable={false}>
+                  <span style={{ fg: theme.success }}>●</span>
+                  <span style={{ fg: theme.success }}>●</span>
+                  <span style={{ fg: theme.warning }}>●</span>
+                  <span style={{ fg: theme.textMuted }}> ■</span>
+                  <span style={{ fg: theme.textMuted }}>■</span>
                 </text>
-                <Show when={store.mode === "normal"}>
-                  <text fg={theme.primary}>{"//"}</text>
-                  <text flexShrink={0} fg={keybind.leader ? theme.textMuted : theme.text}>
-                    {local.model.parsed().model}
-                  </text>
-                  <text fg={theme.textMuted}>{local.model.parsed().provider}</text>
-                  <Show when={showVariant()}>
-                    <text fg={theme.textMuted}>·</text>
-                    <text>
-                      <span style={{ fg: theme.warning, bold: true }}>{local.model.variant.current()}</span>
-                    </text>
+                <text fg={theme.textMuted}>
+                  {"BUILD: XETHRYON CORE "}
+                  <span style={{ fg: theme.text }}>
+                    {(() => {
+                      if (store.mode === "shell") return "SHELL_MODE"
+                      const name = local.agent.current().name
+                      const cyberNames: Record<string, string> = { build: "CONSTRUCT", plan: "STRATAGEM", coordinator: "NEXUS", explore: "RECON", verification: "VALIDATOR" }
+                      return cyberNames[name] ?? name.toUpperCase()
+                    })()}
+                  </span>
+                  <Show when={store.mode === "normal"}>
+                    <span style={{ fg: theme.textMuted }}>{" "}{local.model.parsed().model}</span>
                   </Show>
-                </Show>
+                  <span style={{ fg: theme.textMuted }}>{" (STABLE)"}</span>
+                </text>
               </box>
             </box>
           </box>
@@ -1194,12 +1194,12 @@ export function Prompt(props: PromptProps) {
                     </Match>
                     <Match when={true}>
                       <text fg={theme.text}>
-                        {keybind.print("agent_cycle")} <span style={{ fg: theme.textMuted }}>protocols</span>
+                        <span style={{ bg: theme.backgroundElement, fg: theme.text }}> {keybind.print("agent_cycle")} </span> <span style={{ fg: theme.textMuted }}>SWITCH AGENT</span>
                       </text>
                     </Match>
                   </Switch>
                   <text fg={theme.text}>
-                    {keybind.print("command_list")} <span style={{ fg: theme.textMuted }}>directives</span>
+                    <span style={{ bg: theme.backgroundElement, fg: theme.text }}> {keybind.print("command_list")} </span> <span style={{ fg: theme.textMuted }}>COMMANDS</span>
                   </text>
                 </Match>
                 <Match when={store.mode === "shell"}>

@@ -2,6 +2,7 @@ import { TextAttributes, RGBA } from "@opentui/core"
 import { For, type JSX } from "solid-js"
 import { useTheme, tint } from "@tui/context/theme"
 import { logo, marks } from "@/cli/logo"
+import { Installation } from "@/installation"
 
 // Shadow markers (rendered chars in parens):
 // _ = full shadow cell (space with bg=shadow)
@@ -82,7 +83,9 @@ export function Logo() {
           )}
         </For>
       </box>
-      <text fg={theme.primary} selectable={false}>{"[ NEURAL CODE INTERFACE ]"}</text>
+      <box paddingTop={1}>
+        <text fg={theme.accent} selectable={false}>{"N E U R A L   I N T E R F A C E   V" + Installation.VERSION}</text>
+      </box>
     </box>
   )
 }
