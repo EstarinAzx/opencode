@@ -1,5 +1,5 @@
 # Memory Index
 
-This is the memory index for this OpenCode instance. Each entry points to a topic file with detailed knowledge.
+This is the memory index for this OpenCode instance.
 
-_No memories consolidated yet. Run `/dream` to start._
+- [Project Patterns](project-patterns.md) — Key architecture patterns and coding conventions
