@@ -1248,7 +1248,10 @@ function UserMessage(props: {
             paddingBottom={1}
             paddingLeft={3}
             paddingRight={2}
-            backgroundColor={hover() ? theme.backgroundElement : undefined}
+            backgroundColor={theme.backgroundPanel}
+            border={["left"]}
+            borderColor={color()}
+            customBorderChars={SplitBorder.customBorderChars}
             flexShrink={0}
           >
             <text fg={theme.text}>{text()?.text}</text>
@@ -1427,6 +1430,10 @@ function TextPart(props: { last: boolean; part: TextPart; message: AssistantMess
   return (
     <Show when={props.part.text.trim()}>
       <box id={"text-" + props.part.id} paddingLeft={3} marginTop={1} flexShrink={0}>
+        <box flexDirection="row" gap={1} marginBottom={1}>
+          <text fg={theme.primary}>{"◈"}</text>
+          <text fg={theme.primary}><b>{"XETHRYON"}</b></text>
+        </box>
         <Switch>
           <Match when={Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
             <markdown
