@@ -1,0 +1,50 @@
+---
+description: "Consolidate memories from recent sessions into durable knowledge files"
+agent: general
+subtask: true
+---
+
+# Dream: Memory Consolidation
+
+You are performing a dream — a reflective pass over your memory files. Synthesize what you've learned recently into durable, well-organized memories so that future sessions can orient quickly.
+
+Memory directory: `.opencode/memory/`
+
+---
+
+## Phase 1 — Orient
+
+- `ls` the memory directory to see what already exists
+- Read `MEMORY.md` to understand the current index
+- Skim existing topic files so you improve them rather than creating duplicates
+
+## Phase 2 — Gather recent signal
+
+Look for new information worth persisting. Sources in rough priority order:
+
+1. **Existing memories that drifted** — facts that contradict something you see in the codebase now
+2. **Project patterns** — coding conventions, architecture decisions, common gotchas you discovered
+3. **User preferences** — how the user likes to work, what they care about
+
+Don't exhaustively search. Look only for things you already suspect matter.
+
+## Phase 3 — Consolidate
+
+For each thing worth remembering, write or update a memory file in the memory directory.
+
+Focus on:
+- Merging new signal into existing topic files rather than creating near-duplicates
+- Converting relative dates ("yesterday", "last week") to absolute dates so they remain interpretable after time passes
+- Deleting contradicted facts — if today's investigation disproves an old memory, fix it at the source
+
+## Phase 4 — Prune and index
+
+Update `MEMORY.md` so it stays concise. It's an **index**, not a dump — each entry should be one line: `- [Title](file.md) — one-line hook`. Never write memory content directly into it.
+
+- Remove pointers to memories that are now stale, wrong, or superseded
+- Add pointers to newly important memories
+- Resolve contradictions — if two files disagree, fix the wrong one
+
+---
+
+Return a brief summary of what you consolidated, updated, or pruned. If nothing changed (memories are already tight), say so.
