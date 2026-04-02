@@ -915,11 +915,11 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
           borderColor={theme.primary}
           customBorderChars={{
             topLeft: "",
-            bottomLeft: "╚",
+            bottomLeft: "",
             vertical: "",
             topRight: "",
-            bottomRight: "╝",
-            horizontal: "═",
+            bottomRight: "",
+            horizontal: "─",
             bottomT: "",
             topT: "",
             cross: "",

@@ -28,9 +28,9 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
           border={["left"]}
           borderColor={theme.primary}
           customBorderChars={{
-            topLeft: "╔",
-            bottomLeft: "╚",
-            vertical: "║",
+            topLeft: "┌",
+            bottomLeft: "└",
+            vertical: "│",
             topRight: "",
             bottomRight: "",
             horizontal: "",

@@ -62,7 +62,7 @@ export function Home() {
         <box flexGrow={1} flexDirection="row">
           {/* Left gutter - decorative */}
           <box width={1} flexShrink={0}>
-            <text fg={theme.primary} selectable={false}>{"║"}</text>
+            <text fg={theme.primary} selectable={false}>{"│"}</text>
           </box>
 
           {/* Main content area */}
@@ -72,9 +72,9 @@ export function Home() {
             {/* System status panel */}
             <box flexShrink={0} width="100%" maxWidth={90} alignItems="center">
               <box flexDirection="row" gap={2} flexShrink={0}>
-                <text fg={theme.primary} selectable={false}>{"╔══"}</text>
+                <text fg={theme.primary} selectable={false}>{"┌──"}</text>
                 <text fg={theme.textMuted} selectable={false}>{"SYSTEM STATUS"}</text>
-                <text fg={theme.primary} selectable={false}>{"══╗"}</text>
+                <text fg={theme.primary} selectable={false}>{"──┐"}</text>
               </box>
               <box flexDirection="row" gap={3} paddingTop={1} paddingBottom={1} justifyContent="center">
                 <text fg={theme.textMuted}>
@@ -120,17 +120,17 @@ export function Home() {
 
           {/* Right gutter - decorative */}
           <box width={1} flexShrink={0}>
-            <text fg={theme.primary} selectable={false}>{"║"}</text>
+            <text fg={theme.primary} selectable={false}>{"│"}</text>
           </box>
         </box>
 
         {/* Bottom decorative line */}
         <box flexShrink={0} flexDirection="row" width="100%">
-          <text fg={theme.primary} selectable={false}>{"╚"}</text>
+          <text fg={theme.primary} selectable={false}>{"└"}</text>
           <box flexGrow={1}>
-            <text fg={theme.primary} selectable={false}>{"═".repeat(200)}</text>
+            <text fg={theme.primary} selectable={false}>{"─".repeat(200)}</text>
           </box>
-          <text fg={theme.primary} selectable={false}>{"╝"}</text>
+          <text fg={theme.primary} selectable={false}>{"┘"}</text>
         </box>
       </box>
       <box width="100%" flexShrink={0}>
