@@ -799,7 +799,7 @@ export function Prompt(props: PromptProps) {
   const highlight = createMemo(() => {
     if (keybind.leader) return theme.border
     if (store.mode === "shell") return theme.primary
-    return local.agent.color(local.agent.current().name)
+    return theme.borderSubtle
   })
 
   const showVariant = createMemo(() => {
