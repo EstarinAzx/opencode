@@ -1365,7 +1365,7 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
               </span>
               <span style={{ fg: theme.text }}>{(() => {
                 const name = props.message.mode
-                const cyberNames: Record<string, string> = { build: "CONSTRUCT", plan: "STRATAGEM", coordinator: "NEXUS", explore: "RECON", verification: "VALIDATOR" }
+                const cyberNames: Record<string, string> = { build: "CONSTRUCT", plan: "STRATAGEM", coordinator: "COORDINATE", explore: "RECON", verification: "VALIDATOR" }
                 return cyberNames[name] ?? name.toUpperCase()
               })()}</span>
               <span style={{ fg: theme.primary }}>{" // "}</span>
