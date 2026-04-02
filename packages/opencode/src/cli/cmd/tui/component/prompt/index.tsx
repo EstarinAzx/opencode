@@ -1079,19 +1079,21 @@ export function Prompt(props: PromptProps) {
                   <span style={{ fg: theme.textMuted }}>■</span>
                 </text>
                 <text fg={theme.textMuted}>
-                  {"BUILD: XETHRYON CORE "}
+                  {"BUILD: "}
+                  <span style={{ fg: theme.primary }}><b>{"XETHRYON"}</b></span>
+                  {"  CORE: "}
                   <span style={{ fg: theme.text }}>
-                    {(() => {
+                    <b>{(() => {
                       if (store.mode === "shell") return "SHELL_MODE"
                       const name = local.agent.current().name
                       const cyberNames: Record<string, string> = { build: "CONSTRUCT", plan: "STRATAGEM", coordinator: "NEXUS", explore: "RECON", verification: "VALIDATOR" }
                       return cyberNames[name] ?? name.toUpperCase()
-                    })()}
+                    })()}</b>
                   </span>
                   <Show when={store.mode === "normal"}>
-                    <span style={{ fg: theme.textMuted }}>{" "}{local.model.parsed().model}</span>
+                    {"  MODEL: "}
+                    <span style={{ fg: theme.textMuted }}>{local.model.parsed().model}</span>
                   </Show>
-                  <span style={{ fg: theme.textMuted }}>{" (STABLE)"}</span>
                 </text>
               </box>
             </box>
