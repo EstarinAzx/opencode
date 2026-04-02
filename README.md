@@ -20,7 +20,7 @@ XETHRYON is a **heavily customized fork** of [OpenCode](https://opencode.ai) —
 
 - 🎨 **Netrunner dark theme** — acid yellow, electric cyan, hot pink on ultra-dark backgrounds
 - 🖥️ **Bespoke TUI layout** — clean centered interface, message bubbles, custom borders
-- ⚡ **Cyberpunk identity** — custom ASCII logo, agent codenames (CONSTRUCT, STRATAGEM, NEXUS), neural interface branding
+- ⚡ **Custom identity** — ASCII logo, agent codenames (CONSTRUCT, STRATAGEM, COORDINATE), neural interface branding
 - 🧠 **Persistent memory** — AI remembers context across sessions
 - 🤖 **Multi-agent system** — Coordinator, Verification, and specialized agents built-in
 - 🔌 **Provider agnostic** — Works with Claude, OpenAI, Google, OpenRouter, local models, and more
@@ -117,9 +117,24 @@ XETHRYON includes specialized agents you can switch between with `Tab`:
 |---|---|---|
 | **Build** | `CONSTRUCT` | Default full-access agent for development |
 | **Plan** | `STRATAGEM` | Read-only agent for analysis and exploration |
-| **Coordinator** | `NEXUS` | Multi-agent orchestration for complex tasks |
+| **Coordinator** | `COORDINATE` | Multi-agent orchestration for complex tasks |
 | **Explore** | `RECON` | Code exploration and search |
 | **Verification** | `VALIDATOR` | Code review and validation |
+
+---
+
+## Built-in Commands
+
+XETHRYON ships with commands you can invoke from the prompt with `/`:
+
+| Command | Description |
+|---|---|
+| `/init` | Guided AGENTS.md setup |
+| `/review` | Review uncommitted changes |
+| `/dream` | Consolidate memories into durable knowledge files |
+| `/learn` | Extract non-obvious learnings to AGENTS.md files |
+| `/commit` | Git commit and push with conventional prefixes |
+| `/spellcheck` | Spellcheck markdown file changes |
 
 ---
 

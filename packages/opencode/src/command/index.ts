@@ -11,6 +11,9 @@ import { Log } from "../util/log"
 import PROMPT_INITIALIZE from "./template/initialize.txt"
 import PROMPT_REVIEW from "./template/review.txt"
 import PROMPT_DREAM from "./template/dream.txt"
+import PROMPT_LEARN from "./template/learn.txt"
+import PROMPT_SPELLCHECK from "./template/spellcheck.txt"
+import PROMPT_COMMIT from "./template/commit.txt"
 
 export namespace Command {
   const log = Log.create({ service: "command" })
@@ -65,6 +68,9 @@ export namespace Command {
     INIT: "init",
     REVIEW: "review",
     DREAM: "dream",
+    LEARN: "learn",
+    SPELLCHECK: "spellcheck",
+    COMMIT: "commit",
   } as const
 
   export interface Interface {
@@ -114,6 +120,34 @@ export namespace Command {
           },
           subtask: true,
           hints: hints(PROMPT_DREAM),
+        }
+        commands[Default.LEARN] = {
+          name: Default.LEARN,
+          description: "extract non-obvious learnings from session to AGENTS.md files",
+          source: "command",
+          get template() {
+            return PROMPT_LEARN
+          },
+          hints: hints(PROMPT_LEARN),
+        }
+        commands[Default.SPELLCHECK] = {
+          name: Default.SPELLCHECK,
+          description: "spellcheck all markdown file changes",
+          source: "command",
+          get template() {
+            return PROMPT_SPELLCHECK
+          },
+          hints: hints(PROMPT_SPELLCHECK),
+        }
+        commands[Default.COMMIT] = {
+          name: Default.COMMIT,
+          description: "git commit and push with conventional commit prefixes",
+          source: "command",
+          get template() {
+            return PROMPT_COMMIT
+          },
+          subtask: true,
+          hints: hints(PROMPT_COMMIT),
         }
 
         for (const [name, command] of Object.entries(cfg.command ?? {})) {
