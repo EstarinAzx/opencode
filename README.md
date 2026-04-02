@@ -10,7 +10,7 @@
 </p>
 
 <p align="center"><b>N E U R A L &nbsp; I N T E R F A C E</b></p>
-<p align="center">A cyberpunk-themed AI coding agent for the terminal. Built on <a href="https://github.com/anomalyco/opencode">OpenCode</a>.</p>
+<p align="center">A custom AI coding agent for the terminal. Built on <a href="https://github.com/anomalyco/opencode">OpenCode</a>.</p>
 
 ---
 
