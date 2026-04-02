@@ -16,7 +16,7 @@ function View(props: { api: TuiPluginApi }) {
           <text fg={theme().text}>{open() ? "▼" : "▶"}</text>
         </Show>
         <text fg={theme().text}>
-          <b>LSP</b>
+          <b>[ LSP ]</b>
         </text>
       </box>
       <Show when={list().length <= 2 || open()}>
