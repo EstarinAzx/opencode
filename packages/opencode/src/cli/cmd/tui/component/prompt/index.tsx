@@ -814,10 +814,10 @@ export function Prompt(props: PromptProps) {
     if (store.mode === "shell") {
       if (!shell().length) return undefined
       const example = shell()[store.placeholder % shell().length]
-      return `Run a command... "${example}"`
+      return `>_ Execute protocol... "${example}"`
     }
     if (!list().length) return undefined
-    return `Ask anything... "${list()[store.placeholder % list().length]}"`
+    return `>_ NEURAL_LINK READY... "${list()[store.placeholder % list().length]}"`
   })
 
   const spinnerDef = createMemo(() => {
@@ -1062,7 +1062,12 @@ export function Prompt(props: PromptProps) {
             />
             <box flexDirection="row" flexShrink={0} paddingTop={1} gap={1}>
               <text fg={highlight()}>
-                {store.mode === "shell" ? "Shell" : Locale.titlecase(local.agent.current().name)}{" "}
+                {(() => {
+                  if (store.mode === "shell") return "SHELL_MODE"
+                  const name = local.agent.current().name
+                  const cyberNames: Record<string, string> = { build: "CONSTRUCT", plan: "STRATAGEM", coordinator: "NEXUS", explore: "RECON", verification: "VALIDATOR" }
+                  return cyberNames[name] ?? name.toUpperCase()
+                })()}{" "}
               </text>
               <Show when={store.mode === "normal"}>
                 <box flexDirection="row" gap={1}>
@@ -1183,7 +1188,7 @@ export function Prompt(props: PromptProps) {
               <text fg={store.interrupt > 0 ? theme.primary : theme.text}>
                 esc{" "}
                 <span style={{ fg: store.interrupt > 0 ? theme.primary : theme.textMuted }}>
-                  {store.interrupt > 0 ? "again to interrupt" : "interrupt"}
+                  {store.interrupt > 0 ? "again to FORCE_ABORT" : "ABORT"}
                 </span>
               </text>
             </box>
@@ -1202,17 +1207,17 @@ export function Prompt(props: PromptProps) {
                     </Match>
                     <Match when={true}>
                       <text fg={theme.text}>
-                        {keybind.print("agent_cycle")} <span style={{ fg: theme.textMuted }}>agents</span>
+                        {keybind.print("agent_cycle")} <span style={{ fg: theme.textMuted }}>protocols</span>
                       </text>
                     </Match>
                   </Switch>
                   <text fg={theme.text}>
-                    {keybind.print("command_list")} <span style={{ fg: theme.textMuted }}>commands</span>
+                    {keybind.print("command_list")} <span style={{ fg: theme.textMuted }}>directives</span>
                   </text>
                 </Match>
                 <Match when={store.mode === "shell"}>
                   <text fg={theme.text}>
-                    esc <span style={{ fg: theme.textMuted }}>exit shell mode</span>
+                    esc <span style={{ fg: theme.textMuted }}>EXIT_SHELL</span>
                   </text>
                 </Match>
               </Switch>
