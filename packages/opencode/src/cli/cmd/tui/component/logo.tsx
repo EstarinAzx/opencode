@@ -18,7 +18,7 @@ export function Logo() {
         </For>
       </box>
       <box paddingTop={1}>
-        <text fg={theme.accent} selectable={false}>{"N E U R A L   I N T E R F A C E   V" + Installation.VERSION}</text>
+        <text fg={theme.accent} selectable={false}>{"N E U R A L   I N T E R F A C E"}</text>
       </box>
     </box>
   )

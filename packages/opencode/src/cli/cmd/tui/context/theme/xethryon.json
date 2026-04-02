@@ -5,7 +5,7 @@
     "bgPanel": "#0e0e16",
     "bgElement": "#13131e",
     "fg": "#b0b8c8",
-    "fgMuted": "#454d5e",
+    "fgMuted": "#6b7394",
     "cyan": "#00ccaa",
     "cyanDim": "#0a9980",
     "cyanDark": "#065f50",
@@ -196,7 +196,7 @@
       "light": "#1e293b"
     },
     "syntaxComment": {
-      "dark": "#2a2a3e",
+      "dark": "#4a5068",
       "light": "#94a3b8"
     },
     "syntaxKeyword": {
