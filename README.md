@@ -37,6 +37,12 @@ XETHRYON is a **heavily customized fork** of [OpenCode](https://opencode.ai) —
 curl -fsSL https://raw.githubusercontent.com/EstarinAzx/XETHRYON/master/install.sh | bash
 ```
 
+### One-liner (Windows PowerShell)
+
+```powershell
+irm https://raw.githubusercontent.com/EstarinAzx/XETHRYON/master/install.ps1 | iex
+```
+
 ### From Source
 
 **Prerequisites:** [Bun](https://bun.sh) (v1.1+), [Git](https://git-scm.com), an API key (OpenRouter, Anthropic, OpenAI, Google, etc.)
