@@ -31,11 +31,15 @@ XETHRYON is a **heavily customized fork** of [OpenCode](https://opencode.ai) —
 
 ## Quick Install
 
-### Prerequisites
+### One-liner (Linux / macOS)
 
-- [Bun](https://bun.sh) (v1.1+)
-- [Git](https://git-scm.com)
-- An API key from any supported provider (OpenRouter, Anthropic, OpenAI, Google, etc.)
+```bash
+curl -fsSL https://raw.githubusercontent.com/EstarinAzx/XETHRYON/master/install.sh | bash
+```
+
+### From Source
+
+**Prerequisites:** [Bun](https://bun.sh) (v1.1+), [Git](https://git-scm.com), an API key (OpenRouter, Anthropic, OpenAI, Google, etc.)
 
 ### Linux / macOS
 
