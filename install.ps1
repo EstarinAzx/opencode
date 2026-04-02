@@ -70,12 +70,25 @@ $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
 if ($userPath -notlike "*$installDir*") {
     Write-Host "  Adding to PATH..." -ForegroundColor Yellow
     [Environment]::SetEnvironmentVariable("Path", "$userPath;$installDir", "User")
-    $env:Path = "$env:Path;$installDir"
 }
+
+# Always refresh current session PATH
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
 Write-Host ""
 Write-Host "  Installed: $installDir\$binaryName" -ForegroundColor Green
 Write-Host ""
-Write-Host "  Restart your terminal, then run:" -ForegroundColor White
-Write-Host "    xethryon" -ForegroundColor Cyan
+
+# Test if it's actually reachable
+$test = Get-Command xethryon -ErrorAction SilentlyContinue
+if ($test) {
+    Write-Host "  Run now:" -ForegroundColor White
+    Write-Host "    xethryon" -ForegroundColor Cyan
+} else {
+    Write-Host "  Run now:" -ForegroundColor White
+    Write-Host "    & `"$installDir\$binaryName`"" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  Or restart your terminal, then:" -ForegroundColor DarkGray
+    Write-Host "    xethryon" -ForegroundColor DarkGray
+}
 Write-Host ""
