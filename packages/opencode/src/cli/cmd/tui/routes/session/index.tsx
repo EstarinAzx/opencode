@@ -149,7 +149,7 @@ export function Session() {
     return false
   })
   const showTimestamps = createMemo(() => timestamps() === "show")
-  const contentWidth = createMemo(() => dimensions().width - (sidebarVisible() ? 42 : 0) - 4)
+  const contentWidth = createMemo(() => dimensions().width - (sidebarVisible() ? 36 : 0) - 4)
 
   const scrollAcceleration = createMemo(() => getScrollAcceleration(tuiConfig))
 
@@ -1008,7 +1008,7 @@ export function Session() {
       }}
     >
       <box flexDirection="row">
-        <box flexGrow={1} paddingBottom={1} paddingLeft={2} paddingRight={2} gap={1}>
+        <box flexGrow={1} paddingBottom={1} paddingLeft={1} paddingRight={1} gap={1}>
           <Show when={session()}>
             <scrollbox
               ref={(r) => (scroll = r)}
@@ -1215,11 +1215,27 @@ function UserMessage(props: {
       <Show when={text()}>
         <box
           id={props.message.id}
-          border={["left"]}
-          borderColor={color()}
-          customBorderChars={SplitBorder.customBorderChars}
           marginTop={props.index === 0 ? 0 : 1}
         >
+          {/* User label bar */}
+          <box flexDirection="row" gap={1} paddingLeft={1}>
+            <text fg={color()}>
+              <b>{"▸ YOU"}</b>
+            </text>
+            <Show when={metadataVisible()}>
+              <Show when={!queued()} fallback={
+                <text>
+                  <span style={{ bg: color(), fg: queuedFg(), bold: true }}> QUEUED </span>
+                </text>
+              }>
+                <text fg={theme.textMuted}>
+                  {Locale.todayTimeOrDateTime(props.message.time.created)}
+                </text>
+              </Show>
+            </Show>
+          </box>
+
+          {/* Message content */}
           <box
             onMouseOver={() => {
               setHover(true)
@@ -1230,13 +1246,14 @@ function UserMessage(props: {
             onMouseUp={props.onMouseUp}
             paddingTop={1}
             paddingBottom={1}
-            paddingLeft={2}
-            backgroundColor={hover() ? theme.backgroundElement : theme.backgroundPanel}
+            paddingLeft={3}
+            paddingRight={2}
+            backgroundColor={hover() ? theme.backgroundElement : undefined}
             flexShrink={0}
           >
             <text fg={theme.text}>{text()?.text}</text>
             <Show when={files().length}>
-              <box flexDirection="row" paddingBottom={metadataVisible() ? 1 : 0} paddingTop={1} gap={1} flexWrap="wrap">
+              <box flexDirection="row" paddingTop={1} gap={1} flexWrap="wrap">
                 <For each={files()}>
                   {(file) => {
                     const bg = createMemo(() => {
@@ -1253,22 +1270,6 @@ function UserMessage(props: {
                   }}
                 </For>
               </box>
-            </Show>
-            <Show
-              when={queued()}
-              fallback={
-                <Show when={ctx.showTimestamps()}>
-                  <text fg={theme.textMuted}>
-                    <span style={{ fg: theme.textMuted }}>
-                      {Locale.todayTimeOrDateTime(props.message.time.created)}
-                    </span>
-                  </text>
-                </Show>
-              }
-            >
-              <text fg={theme.textMuted}>
-                <span style={{ bg: color(), fg: queuedFg(), bold: true }}> QUEUED </span>
-              </text>
             </Show>
           </box>
         </box>

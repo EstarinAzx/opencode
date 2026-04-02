@@ -864,11 +864,20 @@ export function Prompt(props: PromptProps) {
       />
       <box ref={(r) => (anchor = r)} visible={props.visible !== false}>
         <box
-          border={["left"]}
+          border={["top", "bottom", "left", "right"]}
           borderColor={highlight()}
           customBorderChars={{
-            ...SplitBorder.customBorderChars,
-            bottomLeft: "╹",
+            topLeft: "╔",
+            topRight: "╗",
+            bottomLeft: "╚",
+            bottomRight: "╝",
+            vertical: "║",
+            horizontal: "═",
+            bottomT: "═",
+            topT: "═",
+            cross: "═",
+            leftT: "║",
+            rightT: "║",
           }}
         >
           <box
@@ -885,7 +894,7 @@ export function Prompt(props: PromptProps) {
               textColor={keybind.leader ? theme.textMuted : theme.text}
               focusedTextColor={keybind.leader ? theme.textMuted : theme.text}
               minHeight={1}
-              maxHeight={6}
+              maxHeight={10}
               onContentChange={() => {
                 const value = input.plainText
                 setStore("prompt", "input", value)
@@ -1060,17 +1069,19 @@ export function Prompt(props: PromptProps) {
               cursorColor={theme.text}
               syntaxStyle={syntax()}
             />
-            <box flexDirection="row" flexShrink={0} paddingTop={1} gap={1}>
-              <text fg={highlight()}>
-                {(() => {
-                  if (store.mode === "shell") return "SHELL_MODE"
-                  const name = local.agent.current().name
-                  const cyberNames: Record<string, string> = { build: "CONSTRUCT", plan: "STRATAGEM", coordinator: "NEXUS", explore: "RECON", verification: "VALIDATOR" }
-                  return cyberNames[name] ?? name.toUpperCase()
-                })()}{" "}
-              </text>
-              <Show when={store.mode === "normal"}>
-                <box flexDirection="row" gap={1}>
+            <box flexDirection="row" flexShrink={0} paddingTop={1} gap={1} justifyContent="space-between">
+              <box flexDirection="row" gap={1}>
+                <text fg={highlight()}>
+                  {"◈ "}
+                  {(() => {
+                    if (store.mode === "shell") return "SHELL_MODE"
+                    const name = local.agent.current().name
+                    const cyberNames: Record<string, string> = { build: "CONSTRUCT", plan: "STRATAGEM", coordinator: "NEXUS", explore: "RECON", verification: "VALIDATOR" }
+                    return cyberNames[name] ?? name.toUpperCase()
+                  })()}
+                </text>
+                <Show when={store.mode === "normal"}>
+                  <text fg={theme.primary}>{"//"}</text>
                   <text flexShrink={0} fg={keybind.leader ? theme.textMuted : theme.text}>
                     {local.model.parsed().model}
                   </text>
@@ -1081,37 +1092,13 @@ export function Prompt(props: PromptProps) {
                       <span style={{ fg: theme.warning, bold: true }}>{local.model.variant.current()}</span>
                     </text>
                   </Show>
-                </box>
-              </Show>
+                </Show>
+              </box>
             </box>
           </box>
         </box>
-        <box
-          height={1}
-          border={["left"]}
-          borderColor={highlight()}
-          customBorderChars={{
-            ...EmptyBorder,
-            vertical: theme.backgroundElement.a !== 0 ? "╹" : " ",
-          }}
-        >
-          <box
-            height={1}
-            border={["bottom"]}
-            borderColor={theme.backgroundElement}
-            customBorderChars={
-              theme.backgroundElement.a !== 0
-                ? {
-                    ...EmptyBorder,
-                    horizontal: "▀",
-                  }
-                : {
-                    ...EmptyBorder,
-                    horizontal: " ",
-                  }
-            }
-          />
-        </box>
+        {/* spacer */}
+        <box height={1} />
         <box flexDirection="row" justifyContent="space-between">
           <Show when={status().type !== "idle"} fallback={props.hint ?? <text />}>
             <box

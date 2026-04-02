@@ -70,7 +70,7 @@ export function Home() {
             <box flexGrow={1} minHeight={0} />
 
             {/* System status panel */}
-            <box flexShrink={0} width="100%" maxWidth={75} alignItems="center">
+            <box flexShrink={0} width="100%" maxWidth={90} alignItems="center">
               <box flexDirection="row" gap={2} flexShrink={0}>
                 <text fg={theme.primary} selectable={false}>{"╔══"}</text>
                 <text fg={theme.textMuted} selectable={false}>{"SYSTEM STATUS"}</text>
@@ -101,7 +101,7 @@ export function Home() {
             <box height={1} minHeight={0} flexShrink={1} />
 
             {/* Prompt */}
-            <box width="100%" maxWidth={75} zIndex={1000} paddingTop={1} flexShrink={0}>
+            <box width="100%" maxWidth={90} zIndex={1000} paddingTop={1} flexShrink={0}>
               <TuiPluginRuntime.Slot name="home_prompt" mode="replace" workspace_id={route.workspaceID}>
                 <Prompt
                   ref={(r) => {

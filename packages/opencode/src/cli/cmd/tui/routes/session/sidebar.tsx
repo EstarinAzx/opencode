@@ -17,12 +17,12 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
   return (
     <Show when={session()}>
         <box
-          width={42}
+          width={36}
           height="100%"
           paddingTop={1}
           paddingBottom={1}
-          paddingLeft={2}
-          paddingRight={2}
+          paddingLeft={1}
+          paddingRight={1}
           position={props.overlay ? "absolute" : "relative"}
           backgroundColor={theme.backgroundPanel}
           border={["left"]}
