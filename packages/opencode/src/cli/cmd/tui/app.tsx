@@ -349,24 +349,24 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
     if (!terminalTitleEnabled() || Flag.OPENCODE_DISABLE_TERMINAL_TITLE) return
 
     if (route.data.type === "home") {
-      renderer.setTerminalTitle("OpenCode")
+      renderer.setTerminalTitle("XETHRYON")
       return
     }
 
     if (route.data.type === "session") {
       const session = sync.session.get(route.data.sessionID)
       if (!session || SessionApi.isDefaultTitle(session.title)) {
-        renderer.setTerminalTitle("OpenCode")
+        renderer.setTerminalTitle("XETHRYON")
         return
       }
 
       const title = session.title.length > 40 ? session.title.slice(0, 37) + "..." : session.title
-      renderer.setTerminalTitle(`OC | ${title}`)
+      renderer.setTerminalTitle(`XETH | ${title}`)
       return
     }
 
     if (route.data.type === "plugin") {
-      renderer.setTerminalTitle(`OC | ${route.data.id}`)
+      renderer.setTerminalTitle(`XETH | ${route.data.id}`)
     }
   })
 
@@ -902,6 +902,45 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         <TimeToFirstDraw />
       </Show>
       <Show when={ready()}>
+        <box
+          width="100%"
+          height={1}
+          flexShrink={0}
+          backgroundColor={theme.backgroundPanel}
+          flexDirection="row"
+          justifyContent="space-between"
+          paddingLeft={1}
+          paddingRight={1}
+          border={["bottom"]}
+          borderColor={theme.primary}
+          customBorderChars={{
+            topLeft: "",
+            bottomLeft: "╚",
+            vertical: "",
+            topRight: "",
+            bottomRight: "╝",
+            horizontal: "═",
+            bottomT: "",
+            topT: "",
+            cross: "",
+            leftT: "",
+            rightT: "",
+          }}
+        >
+          <text fg={theme.primary}>
+            <b>◈ XETHRYON</b>
+            <span style={{ fg: theme.textMuted }}>{" // NEURAL CODE INTERFACE"}</span>
+          </text>
+          <text fg={theme.textMuted}>
+            {(() => {
+              if (route.data.type === "session") {
+                const s = sync.session.get(route.data.sessionID)
+                return s?.title ? `SESSION: ${s.title.slice(0, 30)}` : "SESSION_ACTIVE"
+              }
+              return "AWAITING_INPUT"
+            })()}
+          </text>
+        </box>
         <Switch>
           <Match when={route.data.type === "home"}>
             <Home />
