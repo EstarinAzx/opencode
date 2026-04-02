@@ -911,21 +911,6 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
           justifyContent="space-between"
           paddingLeft={1}
           paddingRight={1}
-          border={["bottom"]}
-          borderColor={theme.primary}
-          customBorderChars={{
-            topLeft: "",
-            bottomLeft: "",
-            vertical: "",
-            topRight: "",
-            bottomRight: "",
-            horizontal: "─",
-            bottomT: "",
-            topT: "",
-            cross: "",
-            leftT: "",
-            rightT: "",
-          }}
         >
           <text fg={theme.primary}>
             <b>◈ XETHRYON</b>
@@ -940,6 +925,9 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
               return "AWAITING_INPUT"
             })()}
           </text>
+        </box>
+        <box width="100%" height={1} flexShrink={0}>
+          <text fg={theme.primary} selectable={false}>{"─".repeat(300)}</text>
         </box>
         <Switch>
           <Match when={route.data.type === "home"}>

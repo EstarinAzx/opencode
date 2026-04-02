@@ -864,20 +864,20 @@ export function Prompt(props: PromptProps) {
       />
       <box ref={(r) => (anchor = r)} visible={props.visible !== false}>
         <box
-          border={["top", "left"]}
+          border={["top", "bottom", "left", "right"]}
           borderColor={highlight()}
           customBorderChars={{
             topLeft: "┌",
-            topRight: "",
-            bottomLeft: "│",
-            bottomRight: "",
+            topRight: "┐",
+            bottomLeft: "└",
+            bottomRight: "┘",
             vertical: "│",
             horizontal: "─",
-            bottomT: "",
-            topT: "",
-            cross: "",
-            leftT: "",
-            rightT: "",
+            bottomT: "─",
+            topT: "─",
+            cross: "─",
+            leftT: "│",
+            rightT: "│",
           }}
         >
           <box
