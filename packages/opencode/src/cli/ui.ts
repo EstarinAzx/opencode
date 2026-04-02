@@ -44,14 +44,14 @@ export namespace UI {
     const result: string[] = []
     const reset = "\x1b[0m"
     const left = {
-      fg: "\x1b[90m",
-      shadow: "\x1b[38;5;235m",
-      bg: "\x1b[48;5;235m",
+      fg: "\x1b[38;2;0;240;255m",
+      shadow: "\x1b[38;2;0;120;128m",
+      bg: "\x1b[48;2;0;60;64m",
     }
     const right = {
-      fg: reset,
-      shadow: "\x1b[38;5;238m",
-      bg: "\x1b[48;5;238m",
+      fg: "\x1b[38;2;255;0;255m",
+      shadow: "\x1b[38;2;128;0;128m",
+      bg: "\x1b[48;2;64;0;64m",
     }
     const gap = " "
     const draw = (line: string, fg: string, shadow: string, bg: string) => {
