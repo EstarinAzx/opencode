@@ -11,6 +11,7 @@ import { iife } from "@/util/iife"
 import { defer } from "@/util/defer"
 import { Config } from "../config/config"
 import { Permission } from "@/permission"
+import { Memory } from "@/memory/memory"
 
 const parameters = z.object({
   description: z.string().describe("A short (3-5 words) description of the task"),
@@ -125,7 +126,21 @@ export const TaskTool = Tool.define("task", async (ctx) => {
       }
       ctx.abort.addEventListener("abort", cancel)
       using _ = defer(() => ctx.abort.removeEventListener("abort", cancel))
-      const promptParts = await SessionPrompt.resolvePromptParts(params.prompt)
+
+      // Set up scratchpad for cross-agent communication
+      const parentSessionID = ctx.sessionID
+      const scratchpad = Memory.scratchpadDir(parentSessionID)
+      const enrichedPrompt = [
+        params.prompt,
+        "",
+        `<scratchpad>`,
+        `Shared scratchpad directory: ${scratchpad}`,
+        `You can read and write files here to share state with other workers in this session.`,
+        `Use this for durable cross-worker knowledge that needs to persist across task boundaries.`,
+        `</scratchpad>`,
+      ].join("\n")
+
+      const promptParts = await SessionPrompt.resolvePromptParts(enrichedPrompt)
 
       const result = await SessionPrompt.prompt({
         messageID,

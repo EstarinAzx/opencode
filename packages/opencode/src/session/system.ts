@@ -1,6 +1,7 @@
 import { Ripgrep } from "../file/ripgrep"
 
 import { Instance } from "../project/instance"
+import { Memory } from "../memory/memory"
 
 import PROMPT_ANTHROPIC from "./prompt/anthropic.txt"
 import PROMPT_DEFAULT from "./prompt/default.txt"
@@ -72,5 +73,9 @@ export namespace SystemPrompt {
       // version of them here and a less verbose version in tool description, rather than vice versa.
       Skill.fmt(list, { verbose: true }),
     ].join("\n")
+  }
+
+  export async function memory() {
+    return Memory.loadAll()
   }
 }

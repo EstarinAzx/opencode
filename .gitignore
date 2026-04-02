@@ -34,3 +34,7 @@ tsconfig.tsbuildinfo
 .env
 .env.*
 !.env.example
+
+# Agent scratchpad and local memory
+.opencode/scratchpad/
+.opencode/memory-local/
