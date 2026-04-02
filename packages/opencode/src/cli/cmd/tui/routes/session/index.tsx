@@ -1327,7 +1327,7 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
         <box paddingTop={1} paddingLeft={3}>
           <text fg={theme.text}>
             {keybind.print("session_child_first")}
-            <span style={{ fg: theme.textMuted }}> view subagents</span>
+            <span style={{ fg: theme.textMuted }}> view sub-protocols</span>
           </text>
         </box>
       </Show>
@@ -1357,15 +1357,21 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
                       : local.agent.color(props.message.agent),
                 }}
               >
-                ▣{" "}
-              </span>{" "}
-              <span style={{ fg: theme.text }}>{Locale.titlecase(props.message.mode)}</span>
-              <span style={{ fg: theme.textMuted }}> · {props.message.modelID}</span>
+                {"◈ "}
+              </span>
+              <span style={{ fg: theme.text }}>{(() => {
+                const name = props.message.mode
+                const cyberNames: Record<string, string> = { build: "CONSTRUCT", plan: "STRATAGEM", coordinator: "NEXUS", explore: "RECON", verification: "VALIDATOR" }
+                return cyberNames[name] ?? name.toUpperCase()
+              })()}</span>
+              <span style={{ fg: theme.primary }}>{" // "}</span>
+              <span style={{ fg: theme.textMuted }}>{props.message.modelID}</span>
               <Show when={duration()}>
-                <span style={{ fg: theme.textMuted }}> · {Locale.duration(duration())}</span>
+                <span style={{ fg: theme.primary }}>{" // "}</span>
+                <span style={{ fg: theme.textMuted }}>{Locale.duration(duration())}</span>
               </Show>
               <Show when={props.message.error?.name === "MessageAbortedError"}>
-                <span style={{ fg: theme.textMuted }}> · interrupted</span>
+                <span style={{ fg: theme.error }}>{" // ABORTED"}</span>
               </Show>
             </text>
           </box>
