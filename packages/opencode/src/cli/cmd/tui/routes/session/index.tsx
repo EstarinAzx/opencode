@@ -1426,37 +1426,54 @@ function ReasoningPart(props: { last: boolean; part: ReasoningPart; message: Ass
 
 function TextPart(props: { last: boolean; part: TextPart; message: AssistantMessage }) {
   const ctx = use()
+  const local = useLocal()
   const { theme, syntax } = useTheme()
+  const color = createMemo(() => local.agent.color(props.message.agent))
   return (
     <Show when={props.part.text.trim()}>
-      <box id={"text-" + props.part.id} paddingLeft={3} marginTop={1} flexShrink={0}>
-        <box flexDirection="row" gap={1} marginBottom={1}>
-          <text fg={theme.primary}>{"◈"}</text>
-          <text fg={theme.primary}><b>{"XETHRYON"}</b></text>
+      <box id={"text-" + props.part.id} marginTop={1} flexShrink={0}>
+        {/* Assistant label bar — aligned with user label */}
+        <box flexDirection="row" gap={1} paddingLeft={1}>
+          <text fg={color()}>{"◈"}</text>
+          <text fg={color()}><b>{"XETHRYON"}</b></text>
         </box>
-        <Switch>
-          <Match when={Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
-            <markdown
-              syntaxStyle={syntax()}
-              streaming={true}
-              content={props.part.text.trim()}
-              conceal={ctx.conceal()}
-              fg={theme.markdownText}
-              bg={theme.background}
-            />
-          </Match>
-          <Match when={!Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
-            <code
-              filetype="markdown"
-              drawUnstyledText={false}
-              streaming={true}
-              syntaxStyle={syntax()}
-              content={props.part.text.trim()}
-              conceal={ctx.conceal()}
-              fg={theme.text}
-            />
-          </Match>
-        </Switch>
+
+        {/* Message content bubble */}
+        <box
+          paddingTop={1}
+          paddingBottom={1}
+          paddingLeft={3}
+          paddingRight={2}
+          backgroundColor={theme.backgroundPanel}
+          border={["left"]}
+          borderColor={color()}
+          customBorderChars={SplitBorder.customBorderChars}
+          flexShrink={0}
+        >
+          <Switch>
+            <Match when={Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
+              <markdown
+                syntaxStyle={syntax()}
+                streaming={true}
+                content={props.part.text.trim()}
+                conceal={ctx.conceal()}
+                fg={theme.markdownText}
+                bg={theme.background}
+              />
+            </Match>
+            <Match when={!Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
+              <code
+                filetype="markdown"
+                drawUnstyledText={false}
+                streaming={true}
+                syntaxStyle={syntax()}
+                content={props.part.text.trim()}
+                conceal={ctx.conceal()}
+                fg={theme.text}
+              />
+            </Match>
+          </Switch>
+        </box>
       </box>
     </Show>
   )
