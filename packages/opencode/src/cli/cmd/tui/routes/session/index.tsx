@@ -1245,11 +1245,27 @@ function UserMessage(props: {
       <Show when={text()}>
         <box
           id={props.message.id}
-          border={["left"]}
-          borderColor={color()}
-          customBorderChars={SplitBorder.customBorderChars}
           marginTop={props.index === 0 ? 0 : 1}
         >
+          {/* User label bar */}
+          <box flexDirection="row" gap={1} paddingLeft={1}>
+            <text fg={color()}>
+              <b>{"► YOU"}</b>
+            </text>
+            <Show when={metadataVisible()}>
+              <Show when={!queued()} fallback={
+                <text>
+                  <span style={{ bg: color(), fg: queuedFg(), bold: true }}> QUEUED </span>
+                </text>
+              }>
+                <text fg={theme.textMuted}>
+                  {Locale.todayTimeOrDateTime(props.message.time.created)}
+                </text>
+              </Show>
+            </Show>
+          </box>
+
+          {/* Message content */}
           <box
             onMouseOver={() => {
               setHover(true)
@@ -1260,13 +1276,17 @@ function UserMessage(props: {
             onMouseUp={props.onMouseUp}
             paddingTop={1}
             paddingBottom={1}
-            paddingLeft={2}
-            backgroundColor={hover() ? theme.backgroundElement : theme.backgroundPanel}
+            paddingLeft={3}
+            paddingRight={2}
+            backgroundColor={theme.backgroundPanel}
+            border={["left"]}
+            borderColor={color()}
+            customBorderChars={SplitBorder.customBorderChars}
             flexShrink={0}
           >
             <text fg={theme.text}>{text()?.text}</text>
             <Show when={files().length}>
-              <box flexDirection="row" paddingBottom={metadataVisible() ? 1 : 0} paddingTop={1} gap={1} flexWrap="wrap">
+              <box flexDirection="row" paddingTop={1} gap={1} flexWrap="wrap">
                 <For each={files()}>
                   {(file) => {
                     const bg = createMemo(() => {
@@ -1283,22 +1303,6 @@ function UserMessage(props: {
                   }}
                 </For>
               </box>
-            </Show>
-            <Show
-              when={queued()}
-              fallback={
-                <Show when={ctx.showTimestamps()}>
-                  <text fg={theme.textMuted}>
-                    <span style={{ fg: theme.textMuted }}>
-                      {Locale.todayTimeOrDateTime(props.message.time.created)}
-                    </span>
-                  </text>
-                </Show>
-              }
-            >
-              <text fg={theme.textMuted}>
-                <span style={{ bg: color(), fg: queuedFg(), bold: true }}> QUEUED </span>
-              </text>
             </Show>
           </box>
         </box>
@@ -1389,15 +1393,21 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
                       : local.agent.color(props.message.agent),
                 }}
               >
-                ▣{" "}
-              </span>{" "}
-              <span style={{ fg: theme.text }}>{Locale.titlecase(props.message.mode)}</span>
-              <span style={{ fg: theme.textMuted }}> · {model()}</span>
+                {"█ "}
+              </span>
+              <span style={{ fg: theme.text }}>{(() => {
+                const name = props.message.mode
+                const cyberNames: Record<string, string> = { build: "CONSTRUCT", plan: "STRATAGEM", coordinator: "COORDINATE", explore: "RECON", verification: "VALIDATOR" }
+                return cyberNames[name] ?? name.toUpperCase()
+              })()}</span>
+              <span style={{ fg: theme.primary }}>{" // "}</span>
+              <span style={{ fg: theme.textMuted }}>{props.message.modelID}</span>
               <Show when={duration()}>
-                <span style={{ fg: theme.textMuted }}> · {Locale.duration(duration())}</span>
+                <span style={{ fg: theme.primary }}>{" // "}</span>
+                <span style={{ fg: theme.textMuted }}>{Locale.duration(duration())}</span>
               </Show>
               <Show when={props.message.error?.name === "MessageAbortedError"}>
-                <span style={{ fg: theme.textMuted }}> · interrupted</span>
+                <span style={{ fg: theme.error }}>{" // ABORTED"}</span>
               </Show>
             </text>
           </box>
@@ -1461,7 +1471,17 @@ function TextPart(props: { last: boolean; part: TextPart; message: AssistantMess
         </box>
 
         {/* Message content bubble */}
-        <box paddingLeft={3}>
+        <box
+          paddingTop={1}
+          paddingBottom={1}
+          paddingLeft={3}
+          paddingRight={2}
+          backgroundColor={theme.backgroundPanel}
+          border={["left"]}
+          borderColor={color()}
+          customBorderChars={SplitBorder.customBorderChars}
+          flexShrink={0}
+        >
         <Switch>
           <Match when={Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
             <markdown
