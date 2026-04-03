@@ -1,141 +1,181 @@
 <p align="center">
-  <a href="https://opencode.ai">
-    <picture>
-      <source srcset="packages/console/app/src/asset/logo-ornate-dark.svg" media="(prefers-color-scheme: dark)">
-      <source srcset="packages/console/app/src/asset/logo-ornate-light.svg" media="(prefers-color-scheme: light)">
-      <img src="packages/console/app/src/asset/logo-ornate-light.svg" alt="OpenCode logo">
-    </picture>
-  </a>
-</p>
-<p align="center">The open source AI coding agent.</p>
-<p align="center">
-  <a href="https://opencode.ai/discord"><img alt="Discord" src="https://img.shields.io/discord/1391832426048651334?style=flat-square&label=discord" /></a>
-  <a href="https://www.npmjs.com/package/opencode-ai"><img alt="npm" src="https://img.shields.io/npm/v/opencode-ai?style=flat-square" /></a>
-  <a href="https://github.com/anomalyco/opencode/actions/workflows/publish.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/anomalyco/opencode/publish.yml?style=flat-square&branch=dev" /></a>
+<pre align="center">
+██╗  ██╗███████╗████████╗██╗  ██╗██████╗ ██╗   ██╗ ██████╗ ███╗   ██╗
+╚██╗██╔╝██╔════╝╚══██╔══╝██║  ██║██╔══██╗╚██╗ ██╔╝██╔═══██╗████╗  ██║
+ ╚███╔╝ █████╗     ██║   ███████║███████║ ╚████╔╝ ██║   ██║██╔██╗ ██║
+ ██╔██╗ ██╔══╝     ██║   ██╔══██║██╔══██║  ╚██╔╝  ██║   ██║██║╚██╗██║
+██╔╝ ██╗███████╗   ██║   ██║  ██║██║  ██║   ██║   ╚██████╔╝██║ ╚████║
+╚═╝  ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═══╝
+</pre>
 </p>
 
-<p align="center">
-  <a href="README.md">English</a> |
-  <a href="README.zh.md">简体中文</a> |
-  <a href="README.zht.md">繁體中文</a> |
-  <a href="README.ko.md">한국어</a> |
-  <a href="README.de.md">Deutsch</a> |
-  <a href="README.es.md">Español</a> |
-  <a href="README.fr.md">Français</a> |
-  <a href="README.it.md">Italiano</a> |
-  <a href="README.da.md">Dansk</a> |
-  <a href="README.ja.md">日本語</a> |
-  <a href="README.pl.md">Polski</a> |
-  <a href="README.ru.md">Русский</a> |
-  <a href="README.bs.md">Bosanski</a> |
-  <a href="README.ar.md">العربية</a> |
-  <a href="README.no.md">Norsk</a> |
-  <a href="README.br.md">Português (Brasil)</a> |
-  <a href="README.th.md">ไทย</a> |
-  <a href="README.tr.md">Türkçe</a> |
-  <a href="README.uk.md">Українська</a> |
-  <a href="README.bn.md">বাংলা</a> |
-  <a href="README.gr.md">Ελληνικά</a> |
-  <a href="README.vi.md">Tiếng Việt</a>
-</p>
-
-[![OpenCode Terminal UI](packages/web/src/assets/lander/screenshot.png)](https://opencode.ai)
+<p align="center"><b>N E U R A L &nbsp; I N T E R F A C E</b></p>
+<p align="center">A custom AI coding agent for the terminal. Built on <a href="https://github.com/anomalyco/opencode">OpenCode</a>.</p>
 
 ---
 
-### Installation
+## What is XETHRYON?
 
-```bash
-# YOLO
-curl -fsSL https://opencode.ai/install | bash
+XETHRYON is a **heavily customized fork** of [OpenCode](https://opencode.ai) — an open-source AI coding agent that runs in your terminal. It's been overhauled with:
 
-# Package managers
-npm i -g opencode-ai@latest        # or bun/pnpm/yarn
-scoop install opencode             # Windows
-choco install opencode             # Windows
-brew install anomalyco/tap/opencode # macOS and Linux (recommended, always up to date)
-brew install opencode              # macOS and Linux (official brew formula, updated less)
-sudo pacman -S opencode            # Arch Linux (Stable)
-paru -S opencode-bin               # Arch Linux (Latest from AUR)
-mise use -g opencode               # Any OS
-nix run nixpkgs#opencode           # or github:anomalyco/opencode for latest dev branch
-```
+- 🎨 **Netrunner dark theme** — acid yellow, electric cyan, hot pink on ultra-dark backgrounds
+- 🖥️ **Bespoke TUI layout** — clean centered interface, message bubbles, custom borders
+- ⚡ **Custom identity** — ASCII logo, agent codenames (CONSTRUCT, STRATAGEM, COORDINATE), neural interface branding
+- 🧠 **Persistent memory** — AI remembers context across sessions
+- 🤖 **Multi-agent system** — Coordinator, Verification, and specialized agents built-in
+- 🔌 **Provider agnostic** — Works with Claude, OpenAI, Google, OpenRouter, local models, and more
 
-> [!TIP]
-> Remove versions older than 0.1.x before installing.
-
-### Desktop App (BETA)
-
-OpenCode is also available as a desktop application. Download directly from the [releases page](https://github.com/anomalyco/opencode/releases) or [opencode.ai/download](https://opencode.ai/download).
-
-| Platform              | Download                              |
-| --------------------- | ------------------------------------- |
-| macOS (Apple Silicon) | `opencode-desktop-darwin-aarch64.dmg` |
-| macOS (Intel)         | `opencode-desktop-darwin-x64.dmg`     |
-| Windows               | `opencode-desktop-windows-x64.exe`    |
-| Linux                 | `.deb`, `.rpm`, or AppImage           |
-
-```bash
-# macOS (Homebrew)
-brew install --cask opencode-desktop
-# Windows (Scoop)
-scoop bucket add extras; scoop install extras/opencode-desktop
-```
-
-#### Installation Directory
-
-The install script respects the following priority order for the installation path:
-
-1. `$OPENCODE_INSTALL_DIR` - Custom installation directory
-2. `$XDG_BIN_DIR` - XDG Base Directory Specification compliant path
-3. `$HOME/bin` - Standard user binary directory (if it exists or can be created)
-4. `$HOME/.opencode/bin` - Default fallback
-
-```bash
-# Examples
-OPENCODE_INSTALL_DIR=/usr/local/bin curl -fsSL https://opencode.ai/install | bash
-XDG_BIN_DIR=$HOME/.local/bin curl -fsSL https://opencode.ai/install | bash
-```
-
-### Agents
-
-OpenCode includes two built-in agents you can switch between with the `Tab` key.
-
-- **build** - Default, full-access agent for development work
-- **plan** - Read-only agent for analysis and code exploration
-  - Denies file edits by default
-  - Asks permission before running bash commands
-  - Ideal for exploring unfamiliar codebases or planning changes
-
-Also included is a **general** subagent for complex searches and multistep tasks.
-This is used internally and can be invoked using `@general` in messages.
-
-Learn more about [agents](https://opencode.ai/docs/agents).
-
-### Documentation
-
-For more info on how to configure OpenCode, [**head over to our docs**](https://opencode.ai/docs).
-
-### Contributing
-
-If you're interested in contributing to OpenCode, please read our [contributing docs](./CONTRIBUTING.md) before submitting a pull request.
-
-### Building on OpenCode
-
-If you are working on a project that's related to OpenCode and is using "opencode" as part of its name, for example "opencode-dashboard" or "opencode-mobile", please add a note to your README to clarify that it is not built by the OpenCode team and is not affiliated with us in any way.
-
-### FAQ
-
-#### How is this different from Claude Code?
-
-It's very similar to Claude Code in terms of capability. Here are the key differences:
-
-- 100% open source
-- Not coupled to any provider. Although we recommend the models we provide through [OpenCode Zen](https://opencode.ai/zen), OpenCode can be used with Claude, OpenAI, Google, or even local models. As models evolve, the gaps between them will close and pricing will drop, so being provider-agnostic is important.
-- Out-of-the-box LSP support
-- A focus on TUI. OpenCode is built by neovim users and the creators of [terminal.shop](https://terminal.shop); we are going to push the limits of what's possible in the terminal.
-- A client/server architecture. This, for example, can allow OpenCode to run on your computer while you drive it remotely from a mobile app, meaning that the TUI frontend is just one of the possible clients.
+> This is **not** affiliated with the OpenCode team. It's a community fork with a different aesthetic and feature set.
 
 ---
 
-**Join our community** [Discord](https://discord.gg/opencode) | [X.com](https://x.com/opencode)
+## Quick Install
+
+### One-liner (Linux / macOS)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/EstarinAzx/XETHRYON/master/install.sh | bash
+```
+
+### One-liner (Windows PowerShell)
+
+```powershell
+irm https://raw.githubusercontent.com/EstarinAzx/XETHRYON/master/install.ps1 | iex
+```
+
+### From Source
+
+**Prerequisites:** [Bun](https://bun.sh) (v1.1+), [Git](https://git-scm.com), an API key (OpenRouter, Anthropic, OpenAI, Google, etc.)
+
+### Linux / macOS
+
+```bash
+# Clone the repo
+git clone https://github.com/EstarinAzx/XETHRYON.git
+cd XETHRYON
+
+# Install dependencies
+bun install
+
+# Run
+cd packages/opencode
+bun run dev
+```
+
+### Windows
+
+```powershell
+# Clone the repo
+git clone https://github.com/EstarinAzx/XETHRYON.git
+cd XETHRYON
+
+# Install dependencies
+bun install
+
+# Run
+cd packages\opencode
+bun run dev
+```
+
+### Run from Anywhere (Windows)
+
+After cloning, add the repo to your PATH so you can launch from any directory:
+
+```powershell
+# Add to PATH (run once)
+[Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", "User") + ";C:\path\to\XETHRYON", "User")
+
+# Then from any directory, just run:
+xethryon
+```
+
+---
+
+## Configuration
+
+Create a `.env` file in the project root with your API key:
+
+```env
+# OpenRouter (recommended — access to all models)
+OPENROUTER_API_KEY=sk-or-...
+
+# Or use any other provider:
+# ANTHROPIC_API_KEY=sk-ant-...
+# OPENAI_API_KEY=sk-...
+# GOOGLE_GENERATIVE_AI_API_KEY=...
+```
+
+You can also configure providers through the TUI itself — press `Ctrl+P` → Commands → Provider Settings.
+
+---
+
+## Agents
+
+XETHRYON includes specialized agents you can switch between with `Tab`:
+
+| Agent | Codename | Description |
+|---|---|---|
+| **Build** | `CONSTRUCT` | Default full-access agent for development |
+| **Plan** | `STRATAGEM` | Read-only agent for analysis and exploration |
+| **Coordinator** | `COORDINATE` | Multi-agent orchestration for complex tasks |
+| **Explore** | `RECON` | Code exploration and search |
+| **Verification** | `VALIDATOR` | Code review and validation |
+
+---
+
+## Built-in Commands
+
+XETHRYON ships with commands you can invoke from the prompt with `/`:
+
+| Command | Description |
+|---|---|
+| `/init` | Guided AGENTS.md setup |
+| `/review` | Review uncommitted changes |
+| `/dream` | Consolidate memories into durable knowledge files |
+| `/learn` | Extract non-obvious learnings to AGENTS.md files |
+| `/commit` | Git commit and push with conventional prefixes |
+| `/spellcheck` | Spellcheck markdown file changes |
+
+---
+
+## Theme
+
+The XETHRYON theme is defined in:
+```
+packages/opencode/src/cli/cmd/tui/context/theme/xethryon.json
+```
+
+You can customize colors by editing this file directly. Changes take effect on next launch — no build needed.
+
+### Current Palette
+
+| Token | Color | Usage |
+|---|---|---|
+| Background | `#0a0b08` | Near-black with green tint |
+| Primary | `#d4ed26` | Acid yellow — headings, logo |
+| Secondary | `#00e5ff` | Electric cyan — links, accents |
+| Accent | `#e5a700` | Warm amber — highlights |
+| Text | `#c8cbb8` | Main body text |
+| Muted | `#6b6e5a` | Dimmed labels |
+
+---
+
+## Keybinds
+
+| Key | Action |
+|---|---|
+| `Tab` | Switch agent |
+| `Ctrl+P` | Command palette |
+| `Escape` | Abort / Exit |
+| `Ctrl+C` | Quit |
+
+---
+
+## Credits
+
+- Built on [OpenCode](https://github.com/anomalyco/opencode) by Anomaly
+- Forked and reskinned by [@EstarinAzx](https://github.com/EstarinAzx)
+
+---
+
+<p align="center"><sub>◈ XETHRYON NEURAL INTERFACE — jack in, start coding</sub></p>

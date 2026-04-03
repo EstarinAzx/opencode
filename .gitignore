@@ -29,3 +29,15 @@ UPCOMING_CHANGELOG.md
 logs/
 *.bun-build
 tsconfig.tsbuildinfo
+
+# API keys
+.env
+.env.*
+!.env.example
+
+# Agent scratchpad and local memory
+.opencode/scratchpad/
+.opencode/memory-local/
+
+# Built binary
+xethryon.exe
