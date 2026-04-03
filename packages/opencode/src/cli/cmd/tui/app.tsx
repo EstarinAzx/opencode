@@ -902,15 +902,18 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         <TimeToFirstDraw />
       </Show>
       <Show when={ready()}>
-        {/* Xethryon header bar */}
         <box
+          width="100%"
+          height={1}
+          flexShrink={0}
+          backgroundColor={theme.backgroundPanel}
           flexDirection="row"
           justifyContent="space-between"
           paddingLeft={1}
           paddingRight={1}
         >
           <text fg={theme.primary}>
-            <b>◆ XETHRYON</b>
+            <b>◈ XETHRYON</b>
             <span style={{ fg: theme.textMuted }}>{" // NEURAL CODE INTERFACE"}</span>
           </text>
           <text fg={theme.textMuted}>
@@ -922,6 +925,9 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
               return "AWAITING_INPUT"
             })()}
           </text>
+        </box>
+        <box width="100%" height={1} flexShrink={0}>
+          <text fg={theme.primary} selectable={false}>{"─".repeat(300)}</text>
         </box>
         <Switch>
           <Match when={route.data.type === "home"}>

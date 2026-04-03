@@ -889,20 +889,11 @@ export function Prompt(props: PromptProps) {
       />
       <box ref={(r) => (anchor = r)} visible={props.visible !== false}>
         <box
-          border={["top", "bottom", "left", "right"]}
+          border={["left"]}
           borderColor={highlight()}
           customBorderChars={{
-            topLeft: "╔",
-            topRight: "╗",
-            bottomLeft: "╚",
-            bottomRight: "╝",
-            vertical: "║",
-            horizontal: "═",
-            bottomT: "═",
-            topT: "═",
-            cross: "═",
-            leftT: "║",
-            rightT: "║",
+            ...SplitBorder.customBorderChars,
+            bottomLeft: "╹",
           }}
         >
           <box
@@ -1129,8 +1120,32 @@ export function Prompt(props: PromptProps) {
             </box>
           </box>
         </box>
-        {/* spacer */}
-        <box height={1} />
+        <box
+          height={1}
+          border={["left"]}
+          borderColor={highlight()}
+          customBorderChars={{
+            ...EmptyBorder,
+            vertical: theme.backgroundElement.a !== 0 ? "╹" : " ",
+          }}
+        >
+          <box
+            height={1}
+            border={["bottom"]}
+            borderColor={theme.backgroundElement}
+            customBorderChars={
+              theme.backgroundElement.a !== 0
+                ? {
+                    ...EmptyBorder,
+                    horizontal: "▀",
+                  }
+                : {
+                    ...EmptyBorder,
+                    horizontal: " ",
+                  }
+            }
+          />
+        </box>
         <box flexDirection="row" justifyContent="space-between">
           <Show when={status().type !== "idle"} fallback={props.hint ?? <text />}>
             <box
