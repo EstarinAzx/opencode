@@ -1087,23 +1087,27 @@ export function Prompt(props: PromptProps) {
             />
             <box flexDirection="row" flexShrink={0} paddingTop={1} gap={1} justifyContent="space-between">
               <box flexDirection="row" gap={1}>
-                <text fg={highlight()}>
-                  {store.mode === "shell" ? "Shell" : Locale.titlecase(local.agent.current().name)}{" "}
+                <text fg={theme.textMuted}>
+                  {"BUILD: "}
+                  <span style={{ fg: theme.primary }}><b>{"XETHRYON"}</b></span>
+                  {"  CORE: "}
+                  <span style={{ fg: theme.text }}>
+                    <b>{(() => {
+                      if (store.mode === "shell") return "SHELL_MODE"
+                      const name = local.agent.current().name
+                      const cyberNames: Record<string, string> = { build: "CONSTRUCT", plan: "STRATAGEM", coordinator: "COORDINATE", explore: "RECON", verification: "VALIDATOR" }
+                      return cyberNames[name] ?? name.toUpperCase()
+                    })()}</b>
+                  </span>
+                  <Show when={store.mode === "normal"}>
+                    {"  MODEL: "}
+                    <span style={{ fg: theme.textMuted }}>{local.model.parsed().model}</span>
+                  </Show>
+                  <Show when={showVariant()}>
+                    {"  VARIANT: "}
+                    <span style={{ fg: theme.warning, bold: true }}>{local.model.variant.current()}</span>
+                  </Show>
                 </text>
-                <Show when={store.mode === "normal"}>
-                  <box flexDirection="row" gap={1}>
-                    <text flexShrink={0} fg={keybind.leader ? theme.textMuted : theme.text}>
-                      {local.model.parsed().model}
-                    </text>
-                    <text fg={theme.textMuted}>{local.model.parsed().provider}</text>
-                    <Show when={showVariant()}>
-                      <text fg={theme.textMuted}>·</text>
-                      <text>
-                        <span style={{ fg: theme.warning, bold: true }}>{local.model.variant.current()}</span>
-                      </text>
-                    </Show>
-                  </box>
-                </Show>
               </box>
               {props.right}
             </box>

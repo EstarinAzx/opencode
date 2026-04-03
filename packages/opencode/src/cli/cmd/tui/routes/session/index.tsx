@@ -239,8 +239,8 @@ export function Session() {
         `${logo[2] ?? ""}`,
         `${logo[3] ?? ""}`,
         ``,
-        `  ${weak("Session")}${UI.Style.TEXT_NORMAL_BOLD}${title}${UI.Style.TEXT_NORMAL}`,
-        `  ${weak("Continue")}${UI.Style.TEXT_NORMAL_BOLD}opencode -s ${session()?.id}${UI.Style.TEXT_NORMAL}`,
+        `  ${weak("SESSION")}${UI.Style.TEXT_NORMAL_BOLD}${title}${UI.Style.TEXT_NORMAL}`,
+        `  ${weak("RESUME ")}${UI.Style.TEXT_NORMAL_BOLD}xethryon -s ${session()?.id}${UI.Style.TEXT_NORMAL}`,
         ``,
       ].join("\n"),
     )
@@ -1449,9 +1449,19 @@ function ReasoningPart(props: { last: boolean; part: ReasoningPart; message: Ass
 function TextPart(props: { last: boolean; part: TextPart; message: AssistantMessage }) {
   const ctx = use()
   const { theme, syntax } = useTheme()
+  const local = useLocal()
+  const color = createMemo(() => local.agent.color(props.message.agent))
   return (
     <Show when={props.part.text.trim()}>
-      <box id={"text-" + props.part.id} paddingLeft={3} marginTop={1} flexShrink={0}>
+      <box id={"text-" + props.part.id} marginTop={1} flexShrink={0}>
+        {/* Assistant label bar — aligned with user label */}
+        <box flexDirection="row" gap={1} paddingLeft={1}>
+          <text fg={color()}>{"█"}</text>
+          <text fg={color()}><b>{"XETHRYON"}</b></text>
+        </box>
+
+        {/* Message content bubble */}
+        <box paddingLeft={3}>
         <Switch>
           <Match when={Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
             <markdown
@@ -1475,6 +1485,7 @@ function TextPart(props: { last: boolean; part: TextPart; message: AssistantMess
             />
           </Match>
         </Switch>
+        </box>
       </box>
     </Show>
   )
