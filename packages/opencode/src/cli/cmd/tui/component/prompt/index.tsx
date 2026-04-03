@@ -889,11 +889,20 @@ export function Prompt(props: PromptProps) {
       />
       <box ref={(r) => (anchor = r)} visible={props.visible !== false}>
         <box
-          border={["left"]}
+          border={["top", "bottom", "left", "right"]}
           borderColor={highlight()}
           customBorderChars={{
-            ...SplitBorder.customBorderChars,
-            bottomLeft: "╹",
+            topLeft: "╔",
+            topRight: "╗",
+            bottomLeft: "╚",
+            bottomRight: "╝",
+            vertical: "║",
+            horizontal: "═",
+            bottomT: "═",
+            topT: "═",
+            cross: "═",
+            leftT: "║",
+            rightT: "║",
           }}
         >
           <box
@@ -1087,6 +1096,13 @@ export function Prompt(props: PromptProps) {
             />
             <box flexDirection="row" flexShrink={0} paddingTop={1} gap={1} justifyContent="space-between">
               <box flexDirection="row" gap={1}>
+                <text selectable={false}>
+                  <span style={{ fg: theme.success }}>●</span>
+                  <span style={{ fg: theme.success }}>●</span>
+                  <span style={{ fg: theme.warning }}>●</span>
+                  <span style={{ fg: theme.textMuted }}> ▣</span>
+                  <span style={{ fg: theme.textMuted }}>▣</span>
+                </text>
                 <text fg={theme.textMuted}>
                   {"BUILD: "}
                   <span style={{ fg: theme.primary }}><b>{"XETHRYON"}</b></span>
@@ -1113,32 +1129,8 @@ export function Prompt(props: PromptProps) {
             </box>
           </box>
         </box>
-        <box
-          height={1}
-          border={["left"]}
-          borderColor={highlight()}
-          customBorderChars={{
-            ...EmptyBorder,
-            vertical: theme.backgroundElement.a !== 0 ? "╹" : " ",
-          }}
-        >
-          <box
-            height={1}
-            border={["bottom"]}
-            borderColor={theme.backgroundElement}
-            customBorderChars={
-              theme.backgroundElement.a !== 0
-                ? {
-                    ...EmptyBorder,
-                    horizontal: "▀",
-                  }
-                : {
-                    ...EmptyBorder,
-                    horizontal: " ",
-                  }
-            }
-          />
-        </box>
+        {/* spacer */}
+        <box height={1} />
         <box flexDirection="row" justifyContent="space-between">
           <Show when={status().type !== "idle"} fallback={props.hint ?? <text />}>
             <box
