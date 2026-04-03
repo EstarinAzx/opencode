@@ -1393,7 +1393,7 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
                       : local.agent.color(props.message.agent),
                 }}
               >
-                {"█ "}
+                {"◆ "}
               </span>
               <span style={{ fg: theme.text }}>{(() => {
                 const name = props.message.mode
@@ -1466,7 +1466,7 @@ function TextPart(props: { last: boolean; part: TextPart; message: AssistantMess
       <box id={"text-" + props.part.id} marginTop={1} flexShrink={0}>
         {/* Assistant label bar — aligned with user label */}
         <box flexDirection="row" gap={1} paddingLeft={1}>
-          <text fg={color()}>{"█"}</text>
+          <text fg={color()}>{"◆"}</text>
           <text fg={color()}><b>{"XETHRYON"}</b></text>
         </box>
 

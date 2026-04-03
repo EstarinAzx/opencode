@@ -910,7 +910,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
           paddingRight={1}
         >
           <text fg={theme.primary}>
-            <b>█ XETHRYON</b>
+            <b>◆ XETHRYON</b>
             <span style={{ fg: theme.textMuted }}>{" // NEURAL CODE INTERFACE"}</span>
           </text>
           <text fg={theme.textMuted}>
