@@ -11,6 +11,8 @@ import { ProviderTransform } from "../provider/transform"
 import PROMPT_GENERATE from "./generate.txt"
 import PROMPT_COMPACTION from "./prompt/compaction.txt"
 import PROMPT_EXPLORE from "./prompt/explore.txt"
+import PROMPT_COORDINATOR from "./prompt/coordinator.txt"
+import PROMPT_VERIFICATION from "./prompt/verification.txt"
 import PROMPT_SUMMARY from "./prompt/summary.txt"
 import PROMPT_TITLE from "./prompt/title.txt"
 import { Permission } from "@/permission"
@@ -230,6 +232,55 @@ export namespace Agent {
                 user,
               ),
               prompt: PROMPT_SUMMARY,
+            },
+            coordinator: {
+              name: "coordinator",
+              description: "Orchestrate complex multi-step tasks by delegating to worker agents. Use this mode when tasks require research, implementation, and verification across multiple files or systems.",
+              prompt: PROMPT_COORDINATOR,
+              permission: Permission.merge(
+                defaults,
+                Permission.fromConfig({
+                  edit: "deny",
+                  write: "deny",
+                  bash: "deny",
+                  read: "allow",
+                  grep: "allow",
+                  glob: "allow",
+                  list: "allow",
+                  task: "allow",
+                  webfetch: "allow",
+                  websearch: "allow",
+                  question: "allow",
+                }),
+                user,
+              ),
+              options: {},
+              mode: "primary",
+              native: true,
+            },
+            verification: {
+              name: "verification",
+              description: "Verify implementations are correct by running builds, tests, and adversarial probes. Produces PASS/FAIL/PARTIAL verdict with evidence.",
+              prompt: PROMPT_VERIFICATION,
+              permission: Permission.merge(
+                defaults,
+                Permission.fromConfig({
+                  edit: "deny",
+                  write: "deny",
+                  bash: "allow",
+                  read: "allow",
+                  grep: "allow",
+                  glob: "allow",
+                  list: "allow",
+                  webfetch: "allow",
+                  websearch: "allow",
+                  codesearch: "allow",
+                }),
+                user,
+              ),
+              options: {},
+              mode: "subagent",
+              native: true,
             },
           }
 
