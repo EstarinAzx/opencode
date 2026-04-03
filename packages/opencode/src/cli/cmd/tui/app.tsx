@@ -902,6 +902,27 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         <TimeToFirstDraw />
       </Show>
       <Show when={ready()}>
+        {/* Xethryon header bar */}
+        <box
+          flexDirection="row"
+          justifyContent="space-between"
+          paddingLeft={1}
+          paddingRight={1}
+        >
+          <text fg={theme.primary}>
+            <b>█ XETHRYON</b>
+            <span style={{ fg: theme.textMuted }}>{" // NEURAL CODE INTERFACE"}</span>
+          </text>
+          <text fg={theme.textMuted}>
+            {(() => {
+              if (route.data.type === "session") {
+                const s = sync.session.get(route.data.sessionID)
+                return s?.title ? `SESSION: ${s.title.slice(0, 30)}` : "SESSION_ACTIVE"
+              }
+              return "AWAITING_INPUT"
+            })()}
+          </text>
+        </box>
         <Switch>
           <Match when={route.data.type === "home"}>
             <Home />
