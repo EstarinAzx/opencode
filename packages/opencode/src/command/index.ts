@@ -162,6 +162,27 @@ export namespace Command {
           hints: hints(PROMPT_SUMMARY),
         }
 
+        // Register bundled skills from Xethryon skills system
+        yield* Effect.tryPromise({
+          try: async () => {
+            const mod = await import("../xethryon/skills/index.js")
+            mod.initBundledSkills()
+            for (const sk of mod.getEnabledSkills()) {
+              if (commands[sk.name]) continue
+              commands[sk.name] = {
+                name: sk.name,
+                description: sk.description,
+                source: "command",
+                get template() {
+                  return sk.getPrompt("")
+                },
+                subtask: sk.subtask ?? false,
+                hints: [],
+              }
+            }
+          },
+          catch: () => undefined,
+        }).pipe(Effect.ignore)
         for (const [name, command] of Object.entries(cfg.command ?? {})) {
           commands[name] = {
             name,
