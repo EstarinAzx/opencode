@@ -80,3 +80,10 @@ export {
   recordConsolidation,
 } from "./consolidationLock.js"
 export { buildConsolidationPrompt } from "./consolidationPrompt.js"
+
+// --- Memory Hook (prompt.ts integration) ---
+export {
+  initMemoryServices,
+  runMemoryPostTurnHook,
+  type MemoryHookContext,
+} from "./memoryHook.js"

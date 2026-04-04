@@ -17,6 +17,7 @@ import { ProviderTransform } from "../provider/transform"
 import { SystemPrompt } from "./system"
 import { Instruction } from "./instruction"
 import { Plugin } from "../plugin"
+import { initMemoryServices, runMemoryPostTurnHook } from "@/xethryon/memory"
 import PROMPT_PLAN from "../session/prompt/plan.txt"
 import BUILD_SWITCH from "../session/prompt/build-switch.txt"
 import MAX_STEPS from "../session/prompt/max-steps.txt"
@@ -101,6 +102,9 @@ export namespace SessionPrompt {
       const spawner = yield* ChildProcessSpawner.ChildProcessSpawner
       const scope = yield* Scope.Scope
       const instruction = yield* Instruction.Service
+
+      // Initialize Xethryon memory subsystems
+      initMemoryServices()
 
       const state = yield* InstanceState.make(
         Effect.fn("SessionPrompt.state")(function* () {
@@ -1340,6 +1344,10 @@ NOTE: At any point in time through this workflow you should feel free to ask the
           let structured: unknown | undefined
           let step = 0
           const session = yield* sessions.get(sessionID)
+          // Stash model/agent for the post-loop memory hook
+          let _lastModel: Provider.Model | undefined
+          let _lastAgent: Agent.Info | undefined
+          let _lastUser2: MessageV2.User | undefined
 
           while (true) {
             yield* status.set(sessionID, { type: "busy" })
@@ -1390,6 +1398,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
               }).pipe(Effect.ignore, Effect.forkIn(scope))
 
             const model = yield* getModel(lastUser.model.providerID, lastUser.model.modelID, sessionID)
+            _lastModel = model
             const task = tasks.pop()
 
             if (task?.type === "subtask") {
@@ -1426,6 +1435,8 @@ NOTE: At any point in time through this workflow you should feel free to ask the
               yield* bus.publish(Session.Event.Error, { sessionID, error: error.toObject() })
               throw error
             }
+            _lastAgent = agent
+            _lastUser2 = lastUser
             const maxSteps = agent.steps ?? Infinity
             const isLastStep = step >= maxSteps
             msgs = yield* insertReminders({ messages: msgs, agent, session })
@@ -1562,6 +1573,26 @@ NOTE: At any point in time through this workflow you should feel free to ask the
           }
 
           yield* compaction.prune({ sessionID }).pipe(Effect.ignore, Effect.forkIn(scope))
+
+          // Fire Xethryon memory post-turn hook in the background
+          if (_lastModel && _lastAgent && _lastUser2) {
+            const memoryMsgs = yield* sessions.messages({ sessionID })
+            yield* Effect.promise(async () => {
+              try {
+                await runMemoryPostTurnHook({
+                  sessionID,
+                  messages: memoryMsgs,
+                  llmStream: LLM.stream,
+                  agent: _lastAgent!,
+                  model: _lastModel!,
+                  user: _lastUser2!,
+                })
+              } catch (e) {
+                log.error("memory hook failed", { error: e })
+              }
+            }).pipe(Effect.ignore, Effect.forkIn(scope))
+          }
+
           return yield* lastAssistant(sessionID)
         },
       )
@@ -1695,6 +1726,13 @@ NOTE: At any point in time through this workflow you should feel free to ask the
           arguments: input.arguments,
           messageID: result.info.id,
         })
+        // Stamp consolidation lock after /dream completes
+        if (input.command === Command.Default.DREAM) {
+          yield* Effect.promise(async () => {
+            const { recordConsolidation } = await import("@/xethryon/memory")
+            await recordConsolidation()
+          }).pipe(Effect.ignore)
+        }
         return result
       })
 
