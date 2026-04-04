@@ -38,6 +38,7 @@ tsconfig.tsbuildinfo
 # Agent scratchpad and local memory
 .opencode/scratchpad/
 .opencode/memory-local/
+.opencode/swarm/
 
 # Built binary
 xethryon.exe
