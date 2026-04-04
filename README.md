@@ -10,22 +10,78 @@
 </p>
 
 <p align="center"><b>N E U R A L &nbsp; I N T E R F A C E</b></p>
-<p align="center">A custom AI coding agent for the terminal. Built on <a href="https://github.com/anomalyco/opencode">OpenCode</a>.</p>
+<p align="center">An AI coding agent with persistent memory. Built on <a href="https://github.com/anomalyco/opencode">OpenCode</a> + <a href="https://github.com/anthropics/claude-code">Claude Code</a> architecture.</p>
 
 ---
 
 ## What is XETHRYON?
 
-XETHRYON is a **heavily customized fork** of [OpenCode](https://opencode.ai) — an open-source AI coding agent that runs in your terminal. It's been overhauled with:
+XETHRYON is a **hybrid fork** that merges the best of two codebases:
 
-- 🎨 **Netrunner dark theme** — acid yellow, electric cyan, hot pink on ultra-dark backgrounds
-- 🖥️ **Bespoke TUI layout** — clean centered interface, message bubbles, custom borders
-- ⚡ **Custom identity** — ASCII logo, agent codenames (CONSTRUCT, STRATAGEM, COORDINATE), neural interface branding
-- 🧠 **Persistent memory** — AI remembers context across sessions
-- 🤖 **Multi-agent system** — Coordinator, Verification, and specialized agents built-in
-- 🔌 **Provider agnostic** — Works with Claude, OpenAI, Google, OpenRouter, local models, and more
+- **[OpenCode](https://opencode.ai)** — open-source TUI coding agent (session management, multi-provider, tool execution)
+- **[Claude Code](https://github.com/anthropics/claude-code)** — Anthropic's agent architecture (persistent memory, auto-extraction, consolidation)
 
-> This is **not** affiliated with the OpenCode team. It's a community fork with a different aesthetic and feature set.
+The result is an AI coding agent that **remembers across sessions** — it learns your preferences, tracks project patterns, and consolidates knowledge automatically in the background.
+
+### Key Features
+
+- 🧠 **Persistent Memory System** — auto-extracts learnings from every conversation into durable memory files
+- 🌙 **AutoDream Consolidation** — background memory cleanup that fires when enough sessions accumulate
+- 🔍 **LLM-Powered Relevance** — memories are ranked by an AI model, not just keyword matching
+- 📋 **Session Summaries** — running notes maintained automatically for every conversation
+- 🎨 **Netrunner Theme** — cyberpunk dark interface with acid yellow, electric cyan, hot pink
+- ⚡ **Custom Agents** — CONSTRUCT, STRATAGEM, COORDINATE, RECON, VALIDATOR
+- 🔌 **Provider Agnostic** — Claude, OpenAI, Google, OpenRouter, local models, and more
+
+> This is **not** affiliated with the OpenCode team or Anthropic. It's a community fork combining features from both.
+
+---
+
+## Memory System
+
+The memory system is the core differentiator. It runs automatically in the background — no configuration needed.
+
+### How It Works
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    You chat normally                      │
+│                         ↓                                │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │ Post-Turn Hook (background, non-blocking)         │   │
+│  │                                                    │   │
+│  │  1. Session Memory ─── LLM summarizes convo       │   │
+│  │  2. Extract Memories ── pulls durable learnings   │   │
+│  │  3. AutoDream ──────── consolidates if 24h+5 sess │   │
+│  └──────────────────────────────────────────────────┘   │
+│                         ↓                                │
+│     ~/.xethryon/projects/<project>/memory/                │
+│     ├── MEMORY.md          (index — loaded in prompt)    │
+│     ├── architecture.md    (project patterns)            │
+│     ├── user_prefs.md      (how you like things done)    │
+│     └── session_notes.md   (running conversation log)    │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Memory Commands
+
+| Command | Description |
+|---|---|
+| `/dream` | Manually consolidate and prune memories |
+| `/summary` | Extract key learnings from the current session |
+| `/learn` | Extract non-obvious learnings to AGENTS.md |
+
+### Memory File Format
+
+```yaml
+---
+type: project
+created: 2026-04-04
+updated: 2026-04-04
+tags: [architecture, typescript]
+---
+The project uses Effect-TS for service composition...
+```
 
 ---
 
@@ -50,14 +106,10 @@ irm https://raw.githubusercontent.com/EstarinAzx/XETHRYON/master/install.ps1 | i
 ### Linux / macOS
 
 ```bash
-# Clone the repo
 git clone https://github.com/EstarinAzx/XETHRYON.git
 cd XETHRYON
-
-# Install dependencies
 bun install
 
-# Run
 cd packages/opencode
 bun run dev
 ```
@@ -65,28 +117,20 @@ bun run dev
 ### Windows
 
 ```powershell
-# Clone the repo
 git clone https://github.com/EstarinAzx/XETHRYON.git
 cd XETHRYON
-
-# Install dependencies
 bun install
 
-# Run
 cd packages\opencode
 bun run dev
 ```
 
-### Run from Anywhere (Windows)
+### Build Binary
 
-After cloning, add the repo to your PATH so you can launch from any directory:
-
-```powershell
-# Add to PATH (run once)
-[Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", "User") + ";C:\path\to\XETHRYON", "User")
-
-# Then from any directory, just run:
-xethryon
+```bash
+cd packages/opencode
+bun run build --single --skip-embed-web-ui
+# Binary output: dist/opencode-<platform>/bin/opencode
 ```
 
 ---
@@ -105,13 +149,13 @@ OPENROUTER_API_KEY=sk-or-...
 # GOOGLE_GENERATIVE_AI_API_KEY=...
 ```
 
-You can also configure providers through the TUI itself — press `Ctrl+P` → Commands → Provider Settings.
+You can also configure providers through the TUI — press `Ctrl+P` → Commands → Provider Settings.
 
 ---
 
 ## Agents
 
-XETHRYON includes specialized agents you can switch between with `Tab`:
+Switch between agents with `Tab`:
 
 | Agent | Codename | Description |
 |---|---|---|
@@ -123,16 +167,15 @@ XETHRYON includes specialized agents you can switch between with `Tab`:
 
 ---
 
-## Built-in Commands
-
-XETHRYON ships with commands you can invoke from the prompt with `/`:
+## All Commands
 
 | Command | Description |
 |---|---|
 | `/init` | Guided AGENTS.md setup |
 | `/review` | Review uncommitted changes |
 | `/dream` | Consolidate memories into durable knowledge files |
-| `/learn` | Extract non-obvious learnings to AGENTS.md files |
+| `/summary` | Extract key learnings from this session into memory |
+| `/learn` | Extract non-obvious learnings to AGENTS.md |
 | `/commit` | Git commit and push with conventional prefixes |
 | `/spellcheck` | Spellcheck markdown file changes |
 
@@ -140,14 +183,7 @@ XETHRYON ships with commands you can invoke from the prompt with `/`:
 
 ## Theme
 
-The XETHRYON theme is defined in:
-```
-packages/opencode/src/cli/cmd/tui/context/theme/xethryon.json
-```
-
-You can customize colors by editing this file directly. Changes take effect on next launch — no build needed.
-
-### Current Palette
+Defined in `packages/opencode/src/cli/cmd/tui/context/theme/xethryon.json`. Edit and relaunch — no build needed.
 
 | Token | Color | Usage |
 |---|---|---|
@@ -171,10 +207,35 @@ You can customize colors by editing this file directly. Changes take effect on n
 
 ---
 
+## Architecture
+
+```
+packages/opencode/src/
+├── agent/           # Agent definitions (CONSTRUCT, STRATAGEM, etc.)
+├── command/         # Slash commands + templates
+├── session/         # Session management, LLM stream, prompt loop
+├── provider/        # Multi-provider abstraction
+├── xethryon/        # ◈ Xethryon-specific modules
+│   └── memory/      # Persistent memory subsystem (16 modules)
+│       ├── memoryHook.ts        # Post-turn integration bridge
+│       ├── sessionMemory.ts     # Session note extraction
+│       ├── extractMemories.ts   # Durable memory extraction
+│       ├── autoDream.ts         # Background consolidation
+│       ├── findRelevantMemories.ts  # LLM-powered relevance
+│       ├── memdir.ts            # Memory directory management
+│       ├── memoryScan.ts        # File scanning + manifest
+│       ├── consolidationLock.ts # Lock file for autoDream
+│       └── ...                  # Prompts, paths, types, utils
+└── cli/             # TUI interface + theming
+```
+
+---
+
 ## Credits
 
 - Built on [OpenCode](https://github.com/anomalyco/opencode) by Anomaly
-- Forked and reskinned by [@EstarinAzx](https://github.com/EstarinAzx)
+- Memory architecture inspired by [Claude Code](https://github.com/anthropics/claude-code)
+- Forked and built by [@EstarinAzx](https://github.com/EstarinAzx)
 
 ---
 
