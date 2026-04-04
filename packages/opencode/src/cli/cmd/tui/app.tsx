@@ -912,17 +912,17 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
           paddingLeft={1}
           paddingRight={1}
         >
-          <text fg={theme.primary}>
+          <text fg={theme.primary} flexShrink={0}>
             <b>◈ XETHRYON</b>
             <span style={{ fg: theme.textMuted }}>{" // NEURAL CODE INTERFACE"}</span>
           </text>
-          <text fg={theme.textMuted}>
+          <text fg={theme.textMuted} flexShrink={1} overflow="hidden">
             {(() => {
               if (route.data.type === "session") {
                 const s = sync.session.get(route.data.sessionID)
-                return s?.title ? `SESSION: ${s.title.slice(0, 30)}` : "SESSION_ACTIVE"
+                return s?.title ? ` SESSION: ${s.title.slice(0, 40)}` : " SESSION_ACTIVE"
               }
-              return "AWAITING_INPUT"
+              return " AWAITING_INPUT"
             })()}
           </text>
         </box>
