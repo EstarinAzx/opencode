@@ -74,6 +74,8 @@ export {
   executeAutoDream,
   initAutoDream,
   setAutoDreamConfig,
+  isDreamPending,
+  clearDreamPending,
 } from "./autoDream.js"
 export {
   readLastConsolidatedAt,

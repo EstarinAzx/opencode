@@ -2,14 +2,19 @@
  * Memory relevance engine for Xethryon.
  * Ported from cc-leak/src/memdir/findRelevantMemories.ts.
  *
- * Adaptation: Replaced sideQuery with a simpler keyword-based relevance
- * filter for the initial port. Can be upgraded to use LLM.stream later
- * when the integration is more established.
+ * Phase 3: Dual-mode relevance engine.
+ * - Default: keyword-based scoring (fast, no LLM cost)
+ * - LLM-powered: when an llmCall callback is provided, uses the model
+ *   to rank memory relevance against the current query/context
  */
 
 import { readFile } from "fs/promises"
+import { basename } from "path"
+import { Log } from "@/util/log"
 import { memoryAgeDays } from "./memoryAge.js"
-import { type MemoryHeader, scanMemoryFiles } from "./memoryScan.js"
+import { type MemoryHeader, scanMemoryFiles, formatMemoryManifest } from "./memoryScan.js"
+
+const log = Log.create({ service: "xethryon.findRelevantMemories" })
 
 export type RelevantMemory = {
   path: string
@@ -22,15 +27,81 @@ export type RelevantMemory = {
 const MAX_RELEVANT = 5
 
 /**
+ * LLM-powered relevance selection.
+ * Sends the query + manifest to the model and asks it to rank memories.
+ */
+async function llmSelectRelevant(
+  query: string,
+  memories: MemoryHeader[],
+  llmCall: (prompt: string) => Promise<string>,
+): Promise<RelevantMemory[]> {
+  if (memories.length === 0) return []
+
+  const manifest = formatMemoryManifest(memories)
+
+  const prompt = [
+    "You are a memory relevance engine. Given a user query and a list of memory files, select the most relevant memories.",
+    "",
+    "## User Query / Context",
+    query,
+    "",
+    "## Available Memory Files",
+    manifest,
+    "",
+    "## Instructions",
+    `Select up to ${MAX_RELEVANT} memory files most relevant to the query. Consider:`,
+    "- Direct topic match",
+    "- Related context that would help answer the query",
+    "- Recent memories that add important context",
+    "",
+    "Respond with ONLY a JSON array of filenames, most relevant first:",
+    '["filename1.md", "filename2.md"]',
+    "",
+    "If no memories are relevant, respond with: []",
+  ].join("\n")
+
+  try {
+    const response = await llmCall(prompt)
+    const cleaned = response.trim()
+
+    // Parse the JSON array from the response
+    const jsonMatch = cleaned.match(/\[[\s\S]*?\]/)
+    if (!jsonMatch) return []
+
+    const filenames: string[] = JSON.parse(jsonMatch[0])
+    if (!Array.isArray(filenames)) return []
+
+    // Map filenames back to memory headers
+    const results: RelevantMemory[] = []
+    for (const fn of filenames) {
+      const mem = memories.find((m) => basename(m.filePath) === fn || m.filePath.endsWith(fn))
+      if (mem && results.length < MAX_RELEVANT) {
+        results.push({ path: mem.filePath, mtimeMs: mem.mtimeMs })
+      }
+    }
+
+    log.info("LLM relevance selection", {
+      queryLength: query.length,
+      candidateCount: memories.length,
+      selectedCount: results.length,
+    })
+
+    return results
+  } catch (e) {
+    log.warn("LLM relevance selection failed, falling back to keyword", { error: e })
+    return [] // Caller will fall through to keyword mode
+  }
+}
+
+/**
  * Find memory files relevant to a query by scanning memory file headers
  * and scoring them by keyword overlap + recency.
  *
+ * When llmCall is provided, uses LLM-powered selection first, falling back
+ * to keyword matching on failure.
+ *
  * Returns absolute file paths + mtime of the most relevant memories
  * (up to 5). Excludes MEMORY.md (already loaded in system prompt).
- *
- * For the initial port, this uses keyword matching + recency scoring.
- * TODO: Upgrade to LLM-powered selection via LLM.stream when the memory
- * system is fully integrated.
  */
 export async function findRelevantMemories(
   query: string,
@@ -38,13 +109,21 @@ export async function findRelevantMemories(
   signal: AbortSignal,
   recentTools: readonly string[] = [],
   alreadySurfaced: ReadonlySet<string> = new Set(),
+  llmCall?: (prompt: string) => Promise<string>,
 ): Promise<RelevantMemory[]> {
   const memories = (await scanMemoryFiles(memoryDir, signal)).filter(
     (m) => !alreadySurfaced.has(m.filePath),
   )
   if (memories.length === 0) return []
 
-  // Score each memory by keyword overlap with the query
+  // Try LLM-powered selection first if callback is available
+  if (llmCall && memories.length > 3) {
+    const llmResults = await llmSelectRelevant(query, memories, llmCall)
+    if (llmResults.length > 0) return llmResults
+    // Fall through to keyword mode on failure
+  }
+
+  // Keyword-based scoring (fallback or default)
   const queryWords = extractKeywords(query)
   if (queryWords.length === 0) {
     // No meaningful keywords — return the most recent memories
@@ -100,8 +179,9 @@ export async function loadRelevantMemoryContent(
   query: string,
   memoryDir: string,
   signal: AbortSignal,
+  llmCall?: (prompt: string) => Promise<string>,
 ): Promise<string | null> {
-  const relevant = await findRelevantMemories(query, memoryDir, signal)
+  const relevant = await findRelevantMemories(query, memoryDir, signal, [], new Set(), llmCall)
   if (relevant.length === 0) return null
 
   const contents = await Promise.allSettled(

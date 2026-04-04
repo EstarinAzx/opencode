@@ -14,6 +14,7 @@ import PROMPT_DREAM from "./template/dream.txt"
 import PROMPT_LEARN from "./template/learn.txt"
 import PROMPT_SPELLCHECK from "./template/spellcheck.txt"
 import PROMPT_COMMIT from "./template/commit.txt"
+import PROMPT_SUMMARY from "./template/summary.txt"
 
 export namespace Command {
   const log = Log.create({ service: "command" })
@@ -71,6 +72,7 @@ export namespace Command {
     LEARN: "learn",
     SPELLCHECK: "spellcheck",
     COMMIT: "commit",
+    SUMMARY: "summary",
   } as const
 
   export interface Interface {
@@ -148,6 +150,16 @@ export namespace Command {
           },
           subtask: true,
           hints: hints(PROMPT_COMMIT),
+        }
+        commands[Default.SUMMARY] = {
+          name: Default.SUMMARY,
+          description: "extract key learnings from this session into persistent memory",
+          source: "command",
+          get template() {
+            return PROMPT_SUMMARY
+          },
+          subtask: true,
+          hints: hints(PROMPT_SUMMARY),
         }
 
         for (const [name, command] of Object.entries(cfg.command ?? {})) {

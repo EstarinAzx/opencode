@@ -122,6 +122,29 @@ export async function runMemoryPostTurnHook(ctx: MemoryHookContext): Promise<voi
 
   const adapted = adaptMessages(ctx.messages)
 
+  // Build an LLM callback for background services
+  const llmCall = async (prompt: string): Promise<string> => {
+    const ctrl = new AbortController()
+    const timeout = setTimeout(() => ctrl.abort(), 90000) // 90s timeout
+    try {
+      const result = await ctx.llmStream({
+        agent: ctx.agent,
+        user: ctx.user,
+        system: [],
+        small: true,
+        tools: {},
+        model: ctx.model,
+        abort: ctrl.signal,
+        sessionID: ctx.sessionID,
+        retries: 1,
+        messages: [{ role: "user", content: prompt }],
+      })
+      return await result.text
+    } finally {
+      clearTimeout(timeout)
+    }
+  }
+
   try {
     // 1. Session memory extraction
     await runSessionMemoryExtraction(ctx, adapted)
@@ -134,6 +157,7 @@ export async function runMemoryPostTurnHook(ctx: MemoryHookContext): Promise<voi
     await executeExtractMemories({
       sessionID: ctx.sessionID,
       messages: adapted,
+      llmCall,
     })
   } catch (e) {
     log.error("extract memories failed", { error: e })
@@ -141,7 +165,7 @@ export async function runMemoryPostTurnHook(ctx: MemoryHookContext): Promise<voi
 
   try {
     // 3. AutoDream consolidation check (fires if time+session gates pass)
-    await executeAutoDream(ctx.sessionID)
+    await executeAutoDream(ctx.sessionID, llmCall)
   } catch (e) {
     log.error("autoDream check failed", { error: e })
   }

@@ -2,11 +2,10 @@
  * AutoDream — background memory consolidation for Xethryon.
  * Ported from cc-leak/src/services/autoDream/autoDream.ts.
  *
- * Heavy adaptation:
- * - Replaced runForkedAgent with stub (will wire into Session.create)
- * - Stripped GrowthBook, analytics, DreamTask UI, KAIROS gate
+ * Phase 3: Wired into SessionPrompt.command for actual /dream execution.
+ * - When time+session gates pass, schedules a /dream command on the next session
+ * - Uses the LLM callback from memoryHook for direct consolidation
  * - Preserved the time + session gatekeeping pattern
- * - Simplified session counting (checks memory dir mtime vs lock)
  */
 
 import { readdir, stat } from "fs/promises"
@@ -18,6 +17,7 @@ import {
   readLastConsolidatedAt,
   tryAcquireConsolidationLock,
   rollbackConsolidationLock,
+  recordConsolidation,
 } from "./consolidationLock.js"
 
 const log = Log.create({ service: "xethryon.autoDream" })
@@ -39,6 +39,7 @@ const DEFAULTS: AutoDreamConfig = {
 let _initialized = false
 let _lastSessionScanAt = 0
 let _config: AutoDreamConfig = { ...DEFAULTS }
+let _dreamPending = false
 
 /**
  * Configure autoDream thresholds.
@@ -81,7 +82,10 @@ async function countRecentMemoryChanges(sinceMs: number): Promise<number> {
  *   4. Session gate: enough recent activity
  *   5. Lock: no other process mid-consolidation
  */
-export async function executeAutoDream(sessionID: string): Promise<void> {
+export async function executeAutoDream(
+  sessionID: string,
+  llmCall?: (prompt: string) => Promise<string>,
+): Promise<void> {
   if (!isAutoMemoryEnabled()) return
 
   // --- Time gate ---
@@ -134,19 +138,51 @@ export async function executeAutoDream(sessionID: string): Promise<void> {
 
 Recent memory activity: ${recentChanges} files modified since last consolidation.`
 
-    const _prompt = buildConsolidationPrompt(memoryRoot, memoryRoot, extra)
+    const prompt = buildConsolidationPrompt(memoryRoot, memoryRoot, extra)
 
-    // TODO: Wire into OpenCode's Session.create + SessionPrompt.prompt()
-    // For now, the prompt is built but not sent to a subagent.
-    log.info("autoDream prompt built", {
-      sessionID,
-      memoryRoot,
-      promptLength: _prompt.length,
-    })
+    if (llmCall) {
+      // Phase 3: Call the LLM to perform consolidation
+      log.info("autoDream executing LLM consolidation", {
+        sessionID,
+        memoryRoot,
+      })
+
+      const response = await llmCall(prompt)
+
+      // Record successful consolidation
+      await recordConsolidation()
+
+      log.info("autoDream consolidation complete", {
+        sessionID,
+        responseLength: response.length,
+      })
+    } else {
+      // No LLM callback — mark as pending for /dream command
+      _dreamPending = true
+      log.info("autoDream prompt built — pending /dream execution", {
+        sessionID,
+        memoryRoot,
+        promptLength: prompt.length,
+      })
+    }
   } catch (e) {
     log.error("autoDream failed", { error: e })
     await rollbackConsolidationLock(priorMtime)
   }
+}
+
+/**
+ * Check if autoDream has a pending consolidation.
+ */
+export function isDreamPending(): boolean {
+  return _dreamPending
+}
+
+/**
+ * Clear the pending dream flag (after /dream executes).
+ */
+export function clearDreamPending(): void {
+  _dreamPending = false
 }
 
 /**
@@ -165,4 +201,5 @@ export function resetAutoDream(): void {
   _initialized = false
   _lastSessionScanAt = 0
   _config = { ...DEFAULTS }
+  _dreamPending = false
 }

@@ -1,0 +1,43 @@
+# Summary: Session Memory Extraction
+
+Extract key learnings, decisions, and important context from this conversation session into persistent memory.
+
+Memory directory: `~/.xethryon/projects/<project>/memory/`
+
+---
+
+## What to Extract
+
+1. **Architecture decisions** — any significant technical choices made during this session
+2. **User preferences** — how the user likes things done, their coding style, tool preferences
+3. **Project patterns** — conventions, file organization, naming patterns discovered
+4. **Gotchas & fixes** — bugs, workarounds, non-obvious solutions found
+5. **Important context** — background information that would help future sessions
+
+## How to Extract
+
+For each thing worth remembering:
+
+1. Write it to a memory file in the memory directory using YAML frontmatter:
+
+```yaml
+---
+type: project|user|session
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+tags: [tag1, tag2]
+---
+```
+
+2. Update `MEMORY.md` index with a one-line pointer: `- [Title](file.md) — one-line hook`
+
+## Rules
+
+- Don't duplicate existing memories — check what already exists first
+- Merge new information into existing topic files when possible
+- Use absolute dates, not relative ones
+- Keep the index concise (under 200 lines)
+
+---
+
+Return a brief summary of what you extracted. If the session had nothing worth remembering, say so.
