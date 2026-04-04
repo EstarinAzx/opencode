@@ -6,7 +6,7 @@
  * Skills appear as slash commands in the command palette.
  *
  * Stripped: USER_TYPE gates, feature() flags, Claude-specific skills.
- * Kept: verify, batch, simplify, remember, debug, loop.
+ * Kept: verify, batch, simplify, remember, debug, loop, autopilot, onboard.
  */
 
 import { registerVerifySkill } from "./verify.js"
@@ -15,6 +15,8 @@ import { registerSimplifySkill } from "./simplify.js"
 import { registerRememberSkill } from "./remember.js"
 import { registerDebugSkill } from "./debug.js"
 import { registerLoopSkill } from "./loop.js"
+import { registerAutopilotSkill } from "./autopilot.js"
+import { registerOnboardSkill } from "./onboard.js"
 
 let _initialized = false
 
@@ -35,4 +37,9 @@ export function initBundledSkills(): void {
 
   // Memory-dependent skills (Phase 1 integration)
   registerRememberSkill()
+
+  // Agentic skills
+  registerAutopilotSkill()
+  registerOnboardSkill()
 }
+
