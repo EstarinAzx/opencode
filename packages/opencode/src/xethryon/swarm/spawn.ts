@@ -5,6 +5,10 @@
  * Uses OpenCode's Session.create + SessionPrompt.prompt to run
  * teammate agents as sub-sessions within the same process.
  * This avoids tmux/iTerm2 dependencies (Windows-first design).
+ *
+ * NOTE: We use lazy static imports (top-level await-free) that get
+ * resolved at first use. This avoids the dynamic import() problem
+ * where @/ path aliases don't resolve in compiled Bun binaries.
  */
 
 import crypto from "crypto"
@@ -20,6 +24,26 @@ import {
   getTeammate,
 } from "./state.js"
 import { TEAM_LEAD_NAME } from "./constants.js"
+
+// Lazy-loaded session modules — first call caches the result.
+// These use dynamic import because Session/SessionPrompt have heavy
+// top-level await chains that block if imported statically here.
+let _sessionMod: typeof import("../../session/index.js") | null = null
+let _promptMod: typeof import("../../session/prompt.js") | null = null
+let _schemaMod: typeof import("../../session/schema.js") | null = null
+
+async function getSessionModule() {
+  if (!_sessionMod) _sessionMod = await import("../../session/index.js")
+  return _sessionMod
+}
+async function getPromptModule() {
+  if (!_promptMod) _promptMod = await import("../../session/prompt.js")
+  return _promptMod
+}
+async function getSchemaModule() {
+  if (!_schemaMod) _schemaMod = await import("../../session/schema.js")
+  return _schemaMod
+}
 
 /**
  * Spawn a teammate as an in-process sub-session.
@@ -67,9 +91,8 @@ export async function spawnTeammate(config: TeammateSpawnConfig): Promise<SpawnR
 
     // Spawn the sub-session in the background (non-blocking)
     runTeammateSession(config, agentId, sessionId, ac.signal).catch((err) => {
-      if (process.env.XETHRYON_DEBUG === "true") {
-        console.error(`[xethryon:swarm] teammate ${agentId} error:`, err)
-      }
+      console.error(`[xethryon:swarm] teammate ${agentId} session error:`, err?.message ?? err)
+      updateTeammateStatus(agentId, "stopped")
     })
 
     return { success: true, agentId, sessionId }
@@ -93,10 +116,9 @@ async function runTeammateSession(
   sessionId: string,
   signal: AbortSignal,
 ): Promise<void> {
-  // Dynamic imports to avoid top-level await issues
-  const { Session } = await import("@/session")
-  const { SessionPrompt } = await import("@/session/prompt")
-  const { MessageID } = await import("@/session/schema")
+  const { Session } = await getSessionModule()
+  const { SessionPrompt } = await getPromptModule()
+  const { MessageID } = await getSchemaModule()
 
   try {
     // Create a new sub-session
