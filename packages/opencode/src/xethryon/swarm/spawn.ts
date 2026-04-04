@@ -1,0 +1,212 @@
+/**
+ * In-process teammate spawn backend.
+ * Ported from cc-leak's swarm spawn concept.
+ *
+ * Uses OpenCode's Session.create + SessionPrompt.prompt to run
+ * teammate agents as sub-sessions within the same process.
+ * This avoids tmux/iTerm2 dependencies (Windows-first design).
+ */
+
+import crypto from "crypto"
+import type { TeammateSpawnConfig, SpawnResult, ActiveTeammate } from "./types.js"
+import { formatAgentId, sanitizeName } from "./identity.js"
+import { addMemberToTeam, setMemberActive } from "./team.js"
+import { writeToMailbox } from "./mailbox.js"
+import {
+  registerTeammate,
+  unregisterTeammate,
+  updateTeammateStatus,
+  abortTeammate,
+  getTeammate,
+} from "./state.js"
+import { TEAM_LEAD_NAME } from "./constants.js"
+
+/**
+ * Spawn a teammate as an in-process sub-session.
+ *
+ * Flow:
+ * 1. Generate agentId and sessionId
+ * 2. Register in team config + state
+ * 3. Create a new Session
+ * 4. Run SessionPrompt.prompt in background (non-blocking)
+ * 5. When done → mark idle, notify team lead via mailbox
+ */
+export async function spawnTeammate(config: TeammateSpawnConfig): Promise<SpawnResult> {
+  const agentId = formatAgentId(config.name, config.teamName)
+  const sessionId = `swarm-${sanitizeName(config.name)}-${crypto.randomUUID().slice(0, 8)}`
+
+  try {
+    // Register member in team config
+    await addMemberToTeam(config.teamName, {
+      agentId,
+      name: config.name,
+      agentType: config.agentType,
+      model: config.model,
+      prompt: config.prompt,
+      color: config.color,
+      joinedAt: Date.now(),
+      cwd: process.cwd(),
+      sessionId,
+      isActive: true,
+      backendType: "in-process",
+    })
+
+    // Create abort controller for this teammate
+    const ac = new AbortController()
+
+    // Register in runtime state
+    const teammate: ActiveTeammate = {
+      agentId,
+      name: config.name,
+      teamName: config.teamName,
+      sessionId,
+      abortController: ac,
+      status: "running",
+    }
+    registerTeammate(teammate)
+
+    // Spawn the sub-session in the background (non-blocking)
+    runTeammateSession(config, agentId, sessionId, ac.signal).catch((err) => {
+      if (process.env.XETHRYON_DEBUG === "true") {
+        console.error(`[xethryon:swarm] teammate ${agentId} error:`, err)
+      }
+    })
+
+    return { success: true, agentId, sessionId }
+  } catch (err: unknown) {
+    return {
+      success: false,
+      agentId,
+      sessionId,
+      error: err instanceof Error ? err.message : String(err),
+    }
+  }
+}
+
+/**
+ * Run a teammate's session. This is the core execution loop.
+ * Runs in the background — awaited by nobody.
+ */
+async function runTeammateSession(
+  config: TeammateSpawnConfig,
+  agentId: string,
+  sessionId: string,
+  signal: AbortSignal,
+): Promise<void> {
+  // Dynamic imports to avoid top-level await issues
+  const { Session } = await import("@/session")
+  const { SessionPrompt } = await import("@/session/prompt")
+  const { MessageID } = await import("@/session/schema")
+
+  try {
+    // Create a new sub-session
+    const session = await Session.create({
+      title: `[Swarm] ${config.name} — ${config.description ?? config.teamName}`,
+    })
+
+    if (signal.aborted) {
+      updateTeammateStatus(agentId, "stopped")
+      return
+    }
+
+    const messageID = MessageID.ascending()
+    const promptParts = await SessionPrompt.resolvePromptParts(buildTeammatePrompt(config))
+
+    // Listen for abort
+    const cancelFn = () => SessionPrompt.cancel(session.id)
+    signal.addEventListener("abort", cancelFn)
+
+    try {
+      // Run the prompt
+      const result = await SessionPrompt.prompt({
+        messageID,
+        sessionID: session.id,
+        parts: promptParts,
+        agent: config.agentType,
+      })
+
+      // Prompt completed — teammate is idle
+      updateTeammateStatus(agentId, "idle")
+      await setMemberActive(config.teamName, config.name, false)
+
+      // Notify team lead that this teammate finished
+      const resultText = result.parts.findLast((x: { type: string }) => x.type === "text") as { text?: string } | undefined
+      await writeToMailbox(
+        TEAM_LEAD_NAME,
+        {
+          from: config.name,
+          text: JSON.stringify({
+            type: "idle_notification",
+            from: config.name,
+            idleReason: "Task completed",
+          }),
+          summary: `${config.name} finished: ${resultText?.text?.slice(0, 200) ?? "(no output)"}`,
+          timestamp: Date.now(),
+        },
+        config.teamName,
+      )
+    } finally {
+      signal.removeEventListener("abort", cancelFn)
+    }
+  } catch (err: unknown) {
+    if (signal.aborted) {
+      updateTeammateStatus(agentId, "stopped")
+      return
+    }
+
+    updateTeammateStatus(agentId, "stopped")
+    await setMemberActive(config.teamName, config.name, false)
+
+    // Notify lead about the failure
+    await writeToMailbox(
+      TEAM_LEAD_NAME,
+      {
+        from: config.name,
+        text: JSON.stringify({
+          type: "idle_notification",
+          from: config.name,
+          idleReason: `Error: ${err instanceof Error ? err.message : String(err)}`,
+        }),
+        summary: `${config.name} failed: ${err instanceof Error ? err.message : String(err)}`,
+        timestamp: Date.now(),
+      },
+      config.teamName,
+    ).catch(() => {})
+  } finally {
+    unregisterTeammate(agentId)
+  }
+}
+
+/**
+ * Build the system prompt injected into a teammate's session.
+ */
+function buildTeammatePrompt(config: TeammateSpawnConfig): string {
+  return [
+    `You are a teammate named "${config.name}" on team "${config.teamName}".`,
+    "",
+    "## Your Assignment",
+    config.prompt,
+    "",
+    "## Rules",
+    "- Focus only on your assigned task",
+    "- Do not modify files outside your scope unless necessary",
+    "- When finished, summarize what you did clearly",
+    "- If you encounter a blocker, describe it in your output",
+    config.description ? `\n## Context\n${config.description}` : "",
+  ].join("\n")
+}
+
+/**
+ * Stop a teammate (abort its session).
+ */
+export function stopTeammate(agentId: string): boolean {
+  return abortTeammate(agentId)
+}
+
+/**
+ * Check if a teammate is currently running.
+ */
+export function isTeammateRunning(agentId: string): boolean {
+  const t = getTeammate(agentId)
+  return t !== undefined && t.status === "running"
+}

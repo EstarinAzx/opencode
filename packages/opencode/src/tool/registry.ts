@@ -12,6 +12,14 @@ import { WebFetchTool } from "./webfetch"
 import { WriteTool } from "./write"
 import { InvalidTool } from "./invalid"
 import { SkillTool } from "./skill"
+import { TeamCreateTool } from "./team_create"
+import { TeamDeleteTool } from "./team_delete"
+import { SendMessageTool } from "./send_message"
+import { TaskCreateTool } from "./task_create"
+import { TaskGetTool } from "./task_get"
+import { TaskUpdateTool } from "./task_update"
+import { TaskListTool } from "./task_list"
+import { TaskStopTool } from "./task_stop"
 import type { Agent } from "../agent/agent"
 import { Tool } from "./tool"
 import { Config } from "../config/config"
@@ -131,6 +139,15 @@ export namespace ToolRegistry {
           WebSearchTool,
           CodeSearchTool,
           SkillTool,
+          // Swarm tools
+          TeamCreateTool,
+          TeamDeleteTool,
+          SendMessageTool,
+          TaskCreateTool,
+          TaskGetTool,
+          TaskUpdateTool,
+          TaskListTool,
+          TaskStopTool,
           ApplyPatchTool,
           ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [LspTool] : []),
           ...(cfg.experimental?.batch_tool === true ? [BatchTool] : []),
