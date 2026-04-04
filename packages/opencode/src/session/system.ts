@@ -15,6 +15,7 @@ import type { Provider } from "@/provider/provider"
 import type { Agent } from "@/agent/agent"
 import { Permission } from "@/permission"
 import { Skill } from "@/skill"
+import { loadMemoryPrompt } from "@/xethryon/memory"
 
 export namespace SystemPrompt {
   export function provider(model: Provider.Model) {
@@ -72,5 +73,15 @@ export namespace SystemPrompt {
       // version of them here and a less verbose version in tool description, rather than vice versa.
       Skill.fmt(list, { verbose: true }),
     ].join("\n")
+  }
+
+  /**
+   * Load the Xethryon persistent memory prompt.
+   * Returns the memory system instructions + MEMORY.md content,
+   * or undefined if auto-memory is disabled.
+   */
+  export async function memory(): Promise<string | undefined> {
+    const prompt = await loadMemoryPrompt()
+    return prompt ?? undefined
   }
 }
