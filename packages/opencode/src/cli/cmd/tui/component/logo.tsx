@@ -1,6 +1,7 @@
 import { For } from "solid-js"
 import { useTheme } from "@tui/context/theme"
 import { logo } from "@/cli/logo"
+import { Installation } from "@/installation"
 
 export function Logo() {
   const { theme } = useTheme()

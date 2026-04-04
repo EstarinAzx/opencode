@@ -369,7 +369,7 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
           systemTheme = undefined
           syncThemes()
           if (store.active === "system") {
-            setStore("active", "xethryon")
+            setStore("active", "opencode")
           }
         })
     }
@@ -422,7 +422,7 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
         if (theme) return resolveTheme(theme, store.mode)
       }
 
-      return resolveTheme(store.themes.xethryon ?? store.themes.opencode, store.mode)
+      return resolveTheme(store.themes.xethryon, store.mode)
     })
 
     createEffect(() => {

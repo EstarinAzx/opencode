@@ -1,5 +1,5 @@
 import { BoxRenderable, TextareaRenderable, MouseEvent, PasteEvent, decodePasteBytes, t, dim, fg } from "@opentui/core"
-import { createEffect, createMemo, onMount, createSignal, onCleanup, on, Show, Switch, Match } from "solid-js"
+import { createEffect, createMemo, type JSX, onMount, createSignal, onCleanup, on, Show, Switch, Match } from "solid-js"
 import "opentui-spinner/solid"
 import path from "path"
 import { Filesystem } from "@/util/filesystem"
@@ -18,7 +18,7 @@ import { usePromptStash } from "./stash"
 import { DialogStash } from "../dialog-stash"
 import { type AutocompleteRef, Autocomplete } from "./autocomplete"
 import { useCommandDialog } from "../dialog-command"
-import { useKeyboard, useRenderer, type JSX } from "@opentui/solid"
+import { useKeyboard, useRenderer } from "@opentui/solid"
 import { Editor } from "@tui/util/editor"
 import { useExit } from "../../context/exit"
 import { Clipboard } from "../../util/clipboard"
@@ -42,9 +42,8 @@ export type PromptProps = {
   visible?: boolean
   disabled?: boolean
   onSubmit?: () => void
-  ref?: (ref: PromptRef | undefined) => void
+  ref?: (ref: PromptRef) => void
   hint?: JSX.Element
-  right?: JSX.Element
   showPlaceholder?: boolean
   placeholders?: {
     normal?: string[]
@@ -93,7 +92,6 @@ export function Prompt(props: PromptProps) {
   const kv = useKV()
   const list = createMemo(() => props.placeholders?.normal ?? [])
   const shell = createMemo(() => props.placeholders?.shell ?? [])
-  const [auto, setAuto] = createSignal<AutocompleteRef>()
 
   function promptModelWarning() {
     toast.show({
@@ -437,29 +435,9 @@ export function Prompt(props: PromptProps) {
     },
   }
 
-  onCleanup(() => {
-    props.ref?.(undefined)
-  })
-
   createEffect(() => {
-    if (!input || input.isDestroyed) return
-    if (props.visible === false || dialog.stack.length > 0) {
-      input.blur()
-      return
-    }
-
-    // Slot/plugin updates can remount the background prompt while a dialog is open.
-    // Keep focus with the dialog and let the prompt reclaim it after the dialog closes.
-    input.focus()
-  })
-
-  createEffect(() => {
-    if (!input || input.isDestroyed) return
-    input.traits = {
-      capture: auto()?.visible ? ["escape", "navigate", "submit", "tab"] : undefined,
-      suspend: !!props.disabled || store.mode === "shell",
-      status: store.mode === "shell" ? "SHELL" : undefined,
-    }
+    if (props.visible !== false) input?.focus()
+    if (props.visible === false) input?.blur()
   })
 
   function restoreExtmarksFromParts(parts: PromptInfo["parts"]) {
@@ -821,7 +799,7 @@ export function Prompt(props: PromptProps) {
   const highlight = createMemo(() => {
     if (keybind.leader) return theme.border
     if (store.mode === "shell") return theme.primary
-    return local.agent.color(local.agent.current().name)
+    return theme.borderSubtle
   })
 
   const showVariant = createMemo(() => {
@@ -836,10 +814,10 @@ export function Prompt(props: PromptProps) {
     if (store.mode === "shell") {
       if (!shell().length) return undefined
       const example = shell()[store.placeholder % shell().length]
-      return `Run a command... "${example}"`
+      return `› ${example}`
     }
     if (!list().length) return undefined
-    return `Ask anything... "${list()[store.placeholder % list().length]}"`
+    return `› ${list()[store.placeholder % list().length]}`
   })
 
   const spinnerDef = createMemo(() => {
@@ -866,10 +844,7 @@ export function Prompt(props: PromptProps) {
     <>
       <Autocomplete
         sessionID={props.sessionID}
-        ref={(r) => {
-          autocomplete = r
-          setAuto(() => r)
-        }}
+        ref={(r) => (autocomplete = r)}
         anchor={() => anchor}
         input={() => input}
         setPrompt={(cb) => {
@@ -889,11 +864,20 @@ export function Prompt(props: PromptProps) {
       />
       <box ref={(r) => (anchor = r)} visible={props.visible !== false}>
         <box
-          border={["left"]}
+          border={["top", "bottom", "left", "right"]}
           borderColor={highlight()}
           customBorderChars={{
-            ...SplitBorder.customBorderChars,
-            bottomLeft: "╹",
+            topLeft: "┌",
+            topRight: "┐",
+            bottomLeft: "└",
+            bottomRight: "┘",
+            vertical: "│",
+            horizontal: "─",
+            bottomT: "─",
+            topT: "─",
+            cross: "─",
+            leftT: "│",
+            rightT: "│",
           }}
         >
           <box
@@ -910,7 +894,7 @@ export function Prompt(props: PromptProps) {
               textColor={keybind.leader ? theme.textMuted : theme.text}
               focusedTextColor={keybind.leader ? theme.textMuted : theme.text}
               minHeight={1}
-              maxHeight={6}
+              maxHeight={10}
               onContentChange={() => {
                 const value = input.plainText
                 setStore("prompt", "input", value)
@@ -1091,8 +1075,8 @@ export function Prompt(props: PromptProps) {
                   <span style={{ fg: theme.success }}>●</span>
                   <span style={{ fg: theme.success }}>●</span>
                   <span style={{ fg: theme.warning }}>●</span>
-                  <span style={{ fg: theme.textMuted }}> ▣</span>
-                  <span style={{ fg: theme.textMuted }}>▣</span>
+                  <span style={{ fg: theme.textMuted }}> ■</span>
+                  <span style={{ fg: theme.textMuted }}>■</span>
                 </text>
                 <text fg={theme.textMuted}>
                   {"BUILD: "}
@@ -1110,42 +1094,13 @@ export function Prompt(props: PromptProps) {
                     {"  MODEL: "}
                     <span style={{ fg: theme.textMuted }}>{local.model.parsed().model}</span>
                   </Show>
-                  <Show when={showVariant()}>
-                    {"  VARIANT: "}
-                    <span style={{ fg: theme.warning, bold: true }}>{local.model.variant.current()}</span>
-                  </Show>
                 </text>
               </box>
-              {props.right}
             </box>
           </box>
         </box>
-        <box
-          height={1}
-          border={["left"]}
-          borderColor={highlight()}
-          customBorderChars={{
-            ...EmptyBorder,
-            vertical: theme.backgroundElement.a !== 0 ? "╹" : " ",
-          }}
-        >
-          <box
-            height={1}
-            border={["bottom"]}
-            borderColor={theme.backgroundElement}
-            customBorderChars={
-              theme.backgroundElement.a !== 0
-                ? {
-                    ...EmptyBorder,
-                    horizontal: "▀",
-                  }
-                : {
-                    ...EmptyBorder,
-                    horizontal: " ",
-                  }
-            }
-          />
-        </box>
+        {/* spacer */}
+        <box height={1} />
         <box flexDirection="row" justifyContent="space-between">
           <Show when={status().type !== "idle"} fallback={props.hint ?? <text />}>
             <box
@@ -1222,7 +1177,7 @@ export function Prompt(props: PromptProps) {
               <text fg={store.interrupt > 0 ? theme.primary : theme.text}>
                 esc{" "}
                 <span style={{ fg: store.interrupt > 0 ? theme.primary : theme.textMuted }}>
-                  {store.interrupt > 0 ? "again to interrupt" : "interrupt"}
+                  {store.interrupt > 0 ? "again to FORCE_ABORT" : "ABORT"}
                 </span>
               </text>
             </box>
@@ -1241,17 +1196,17 @@ export function Prompt(props: PromptProps) {
                     </Match>
                     <Match when={true}>
                       <text fg={theme.text}>
-                        {keybind.print("agent_cycle")} <span style={{ fg: theme.textMuted }}>agents</span>
+                        <span style={{ bg: theme.backgroundElement, fg: theme.text }}> {keybind.print("agent_cycle")} </span> <span style={{ fg: theme.textMuted }}>SWITCH AGENT</span>
                       </text>
                     </Match>
                   </Switch>
                   <text fg={theme.text}>
-                    {keybind.print("command_list")} <span style={{ fg: theme.textMuted }}>commands</span>
+                    <span style={{ bg: theme.backgroundElement, fg: theme.text }}> {keybind.print("command_list")} </span> <span style={{ fg: theme.textMuted }}>COMMANDS</span>
                   </text>
                 </Match>
                 <Match when={store.mode === "shell"}>
                   <text fg={theme.text}>
-                    esc <span style={{ fg: theme.textMuted }}>exit shell mode</span>
+                    esc <span style={{ fg: theme.textMuted }}>EXIT_SHELL</span>
                   </text>
                 </Match>
               </Switch>

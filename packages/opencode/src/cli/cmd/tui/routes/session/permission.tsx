@@ -156,7 +156,7 @@ export function PermissionPrompt(props: { request: PermissionRequest }) {
     <Switch>
       <Match when={store.stage === "always"}>
         <Prompt
-          title="Always allow"
+          title="WHITELIST PROTOCOL"
           body={
             <Switch>
               <Match when={props.request.always.length === 1 && props.request.always[0] === "*"}>
@@ -418,7 +418,7 @@ export function PermissionPrompt(props: { request: PermissionRequest }) {
             <box flexDirection="column" gap={0}>
               <box flexDirection="row" gap={1} flexShrink={0}>
                 <text fg={theme.warning}>{"△"}</text>
-                <text fg={theme.text}>Permission required</text>
+                <text fg={theme.text}>AUTHORIZATION REQUIRED</text>
               </box>
               <box flexDirection="row" gap={1} paddingLeft={2} flexShrink={0}>
                 <text fg={theme.textMuted} flexShrink={0}>
@@ -431,10 +431,10 @@ export function PermissionPrompt(props: { request: PermissionRequest }) {
 
           const body = (
             <Prompt
-              title="Permission required"
+              title="AUTHORIZATION REQUIRED"
               header={header()}
               body={current.body}
-              options={{ once: "Allow once", always: "Allow always", reject: "Reject" }}
+              options={{ once: "GRANT_ONCE", always: "WHITELIST", reject: "DENY" }}
               escapeKey="reject"
               fullscreen
               onSelect={(option) => {
@@ -504,7 +504,7 @@ function RejectPrompt(props: { onConfirm: (message: string) => void; onCancel: (
           <text fg={theme.text}>Reject permission</text>
         </box>
         <box paddingLeft={1}>
-          <text fg={theme.textMuted}>Tell Xethryon what to do differently</text>
+          <text fg={theme.textMuted}>Issue override directive to XETHRYON</text>
         </box>
       </box>
       <box
@@ -520,10 +520,7 @@ function RejectPrompt(props: { onConfirm: (message: string) => void; onCancel: (
         gap={1}
       >
         <textarea
-          ref={(val: TextareaRenderable) => {
-            input = val
-            val.traits = { status: "REJECT" }
-          }}
+          ref={(val: TextareaRenderable) => (input = val)}
           focused
           textColor={theme.text}
           focusedTextColor={theme.text}

@@ -4,7 +4,6 @@ import { NamedError } from "@opencode-ai/util/error"
 import { logo as glyphs } from "./logo"
 
 export namespace UI {
-
   export const CancelledError = NamedError.create("UICancelledError", z.void())
 
   export const Style = {
