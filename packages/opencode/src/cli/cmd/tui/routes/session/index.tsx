@@ -1321,6 +1321,8 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
   // The switch_agent tool call and the text response are typically in DIFFERENT messages
   // (tool calls finish with "tool-calls", then a new assistant message continues)
   const switchedAgent = createMemo(() => {
+    // Only override display when autonomy is enabled
+    if (!isAutonomyEnabled()) return null
     // First check this message's own parts
     for (const part of props.parts) {
       if (part.type !== "tool") continue
