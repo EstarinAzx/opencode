@@ -5,7 +5,7 @@
 
 import z from "zod"
 import { Tool } from "./tool"
-import { isAutonomyEnabled } from "../xethryon/autonomy.js"
+import { isAutonomyEnabled } from "@/xethryon/autonomy"
 
 const parameters = z.object({
   agent: z
