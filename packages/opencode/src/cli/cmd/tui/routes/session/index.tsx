@@ -1316,6 +1316,33 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
     return props.message.time.completed - user.time.created
   })
 
+  // Detect if this message contains a completed switch_agent → use NEW mode for footer
+  const effectiveAgent = createMemo(() => {
+    const switchPart = props.parts.find(
+      (x) => x.type === "tool" && x.tool === "switch_agent" && x.state?.status === "completed",
+    ) as any
+    if (switchPart?.state?.output) {
+      try {
+        const result = JSON.parse(switchPart.state.output)
+        if (result.agent) return result.agent
+      } catch {}
+    }
+    return props.message.agent
+  })
+
+  const effectiveMode = createMemo(() => {
+    const switchPart = props.parts.find(
+      (x) => x.type === "tool" && x.tool === "switch_agent" && x.state?.status === "completed",
+    ) as any
+    if (switchPart?.state?.output) {
+      try {
+        const result = JSON.parse(switchPart.state.output)
+        if (result.agent) return result.agent
+      } catch {}
+    }
+    return props.message.mode
+  })
+
   const keybind = useKeybind()
 
   return (
@@ -1366,13 +1393,13 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
                   fg:
                     props.message.error?.name === "MessageAbortedError"
                       ? theme.textMuted
-                      : local.agent.color(props.message.agent),
+                      : local.agent.color(effectiveAgent()),
                 }}
               >
                 {"◈ "}
               </span>
               <span style={{ fg: theme.text }}>{(() => {
-                const name = props.message.mode
+                const name = effectiveMode()
                 const cyberNames: Record<string, string> = { build: "CONSTRUCT", plan: "ARCHITECT", coordinator: "COORDINATE", explore: "RECON", verification: "VALIDATOR" }
                 return cyberNames[name] ?? name.toUpperCase()
               })()}</span>
