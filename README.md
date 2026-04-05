@@ -1,112 +1,77 @@
 # XETHRYON
 
-> **The AI coding agent that remembers, reflects, and ships.**
-
-Xethryon is a terminal-based AI software engineering agent that doesn't just write code — it verifies its own work, remembers your project across sessions, and autonomously invokes workflows to test and ship changes. Built as a hybrid fork combining [OpenCode](https://opencode.ai)'s robust TUI foundation with cherry-picked architectures from Anthropic's [Claude Code](https://github.com/anthropics/claude-code) leak, plus original innovations in agentic autonomy.
+A terminal-based AI coding agent. Fork of [OpenCode](https://opencode.ai) with selective features ported from Anthropic's [Claude Code](https://github.com/anthropics/claude-code) leak, plus custom additions for memory retrieval, self-reflection, git awareness, and autonomous skill invocation.
 
 ---
 
-## What Makes It Different
+## Features
 
-Most coding agents write code and stop. Xethryon operates on a **think → write → reflect → verify → ship** loop:
+### Persistent Project Memory
+The agent extracts learnings from every conversation and stores them as durable memory files. On subsequent sessions, relevant memories are retrieved automatically based on the current query — no manual context loading required.
 
-```
-You: "create a URL parser utility"
-                    ↓
-        Agent writes urlParser.js
-                    ↓
-   ┌─ Reflection gate catches missing edge cases
-   │   Agent self-corrects before you see it
-   └────────────────↓
-       invoke_skill(/verify) — runs tests automatically
-                    ↓
-       invoke_skill(/pr) — branches, commits, pushes
-                    ↓
-You: "Done. PR URL: github.com/you/repo/compare/..."
-```
+- Post-turn extraction of key facts and patterns
+- LLM-ranked retrieval (not keyword matching)
+- AutoDream consolidation after 24h or 5 sessions
+- Stored at `~/.xethryon/projects/<project>/memory/`
 
-No other open-source TUI agent does this.
+### Self-Reflection
+Before presenting code to the user, the agent reviews its own output: did it address the actual request, are there missing edge cases, does it follow existing patterns. If issues are found, it revises silently — the user only sees the corrected result.
 
----
+Capped at one reflection pass per turn. Toggle with `XETHRYON_REFLECTION=0`.
 
-## Key Features
+### Git-Aware Context
+The agent sees branch name, uncommitted changes, merge/rebase state, and ahead/behind counts without running explicit commands. This informs decisions about stashing, branching, and conflict handling.
 
-### 🧠 Persistent Project Memory
-Xethryon remembers your codebase patterns, past bugs, coding style, and decisions across sessions. The memory system is fully automatic:
+Toggle with `XETHRYON_GIT_AWARE=0`.
 
-- **Post-turn extraction** — every conversation generates durable learnings
-- **Cross-session recall** — relevant memories surface automatically based on your current query
-- **AutoDream consolidation** — background optimization when 24h pass or 5 sessions accumulate
-- **LLM-ranked relevance** — intelligent retrieval, not primitive keyword matching
+### Autonomy Mode (`F4`)
+When enabled, the agent operates with more initiative.
 
-Memory lives at `~/.xethryon/projects/<project>/memory/` and persists indefinitely.
-
-### 🔍 Self-Reflection Loop
-Before presenting any code to you, the agent reviews its own work:
-
-- Did the code actually address the request?
-- Are there missing edge cases?
-- Does it follow project patterns?
-
-If issues are found, it self-corrects in a hidden revision pass — you only see the clean result. Toggle with `XETHRYON_REFLECTION=0`.
-
-### 🌿 Git-Aware Context
-The agent sees your git state at all times — branch, uncommitted changes, merge/rebase status, ahead/behind counts. No need to tell it "I'm on a feature branch" or "I have unstaged changes" — it knows.
-
-- Auto-stash guidance before risky operations
-- Branch awareness for commit decisions
-- Conflict detection during merge/rebase
-- Toggle with `XETHRYON_GIT_AWARE=0`
-
-### ⚡ Autonomy Mode (`F4`)
-Press `F4` to unlock full autonomous operation. This isn't just a permission toggle — it fundamentally changes how the agent thinks.
-
-**Dynamic Agent Switching:** The agent reads the intent behind your prompt and pivots between specialized modes on its own. You don't need to manually `Tab` between agents — autonomy handles it:
+**Agent switching** — the agent reads task intent and pivots between modes automatically:
 
 ```
-"plan a refactor of the auth module"     → auto-switches to ARCHITECT
-"explore how the payment system works"    → auto-switches to RECON
-"create a team to fix these 5 bugs"       → auto-switches to COORDINATE
-"verify the test suite passes"            → auto-switches to VALIDATOR
-plan complete, ready to implement          → auto-switches back to CONSTRUCT
+"plan a refactor of the auth module"     → switches to ARCHITECT
+"explore how the payment system works"   → switches to RECON
+"create a team to fix these 5 bugs"      → switches to COORDINATE
+"verify the test suite passes"           → switches to VALIDATOR
+planning done, time to implement         → switches back to CONSTRUCT
 ```
 
-The agent uses the `switch_agent` tool internally — you see the mode change in the status bar, but the transition is seamless. It can also switch mid-task: start planning in ARCHITECT, then pivot to CONSTRUCT when it's ready to code.
+**Skill invocation** — after completing code tasks, the agent considers invoking follow-up skills on its own:
 
-**Autonomous Skill Invocation:** After writing code, the agent runs a mandatory post-task checklist without being told:
+- Wrote/modified code → invoke `/verify`
+- Learned a project pattern → invoke `/remember`
+- Task complete → invoke `/pr`
+- Something failed → invoke `/debug`
 
-1. ✅ Did I create/modify code? → auto-invoke `/verify`
-2. 💾 Did I learn a project pattern? → auto-invoke `/remember`
-3. 📦 Is the task complete? → auto-invoke `/pr`
-4. 🔍 Did something fail? → auto-invoke `/debug`
+This can chain: a single prompt can result in planning, implementation, verification, and shipping without manual steps in between.
 
-Combined, this means a single prompt like *"refactor the config parser"* can trigger: ARCHITECT (plan) → CONSTRUCT (implement) → `/verify` (test) → `/pr` (ship) — all without intervention.
+### Swarm Orchestration
+Parallel workflows via isolated sub-sessions with file-based IPC and shared task boards.
 
-### 🐝 Swarm Orchestration
-Spawn parallel AI teammates for complex operations. The swarm system uses file-based IPC, shared task boards, and isolated sub-sessions.
+Tools: `team_create`, `team_delete`, `send_message`, `task_create`, `task_get`, `task_update`, `task_list`, `task_stop`.
 
-**Swarm tools:** `team_create`, `team_delete`, `send_message`, `task_create`, `task_get`, `task_update`, `task_list`, `task_stop`
+### Agent Modes
 
-### 🤖 Dynamic Agent Modes
-Switch between specialized modes via `Tab` or let autonomy handle it:
+Switch manually with `Tab` or let autonomy handle it.
 
 | Mode | Codename | Purpose |
 |------|----------|---------|
-| **Build** | `CONSTRUCT` | Full-access code implementation |
-| **Plan** | `ARCHITECT` | Read-only architectural analysis |
-| **Manage** | `COORDINATE` | Multi-agent team orchestration |
-| **Search** | `RECON` | Codebase exploration and research |
-| **Review** | `VALIDATOR` | Test validation and code review |
+| Build | `CONSTRUCT` | Full-access code implementation |
+| Plan | `ARCHITECT` | Read-only architectural analysis |
+| Manage | `COORDINATE` | Multi-agent team orchestration |
+| Search | `RECON` | Codebase exploration and research |
+| Review | `VALIDATOR` | Test validation and code review |
 
-### 🔌 Provider Agnostic
-Bring your own keys. Supports Anthropic, OpenAI, Google, OpenRouter, MiniMax, and local models via compatible endpoints.
+### Provider Support
+Bring your own keys. Works with Anthropic, OpenAI, Google, OpenRouter, MiniMax, and local models.
 
-### 🎨 Cyberpunk TUI
-Dark-themed, neon-accented terminal interface with a distinctive Cyberpunk 2077 color palette. Fully customizable via theme JSON — no recompilation needed.
+### Theme
+Ships with a dark Cyberpunk-inspired color palette. Editable via `packages/opencode/src/cli/cmd/tui/context/theme/xethryon.json` — no recompilation needed.
 
 ---
 
-## Quick Install
+## Install
 
 ### Prerequisites
 
@@ -124,7 +89,7 @@ cd packages/opencode
 bun run build --single
 ```
 
-The binary outputs to `dist/opencode-<platform>-<arch>/bin/xethryon(.exe)`.
+Binary outputs to `dist/opencode-<platform>-<arch>/bin/xethryon(.exe)`.
 
 ### Add to PATH
 
@@ -143,19 +108,16 @@ Copy-Item "packages\opencode\dist\opencode-windows-x64\bin\xethryon.exe" -Destin
 sudo cp packages/opencode/dist/opencode-$(uname -s | tr A-Z a-z)-$(uname -m)/bin/xethryon /usr/local/bin/
 ```
 
-Then just run `xethryon` from any project directory.
+Run `xethryon` from any project directory.
 
 ---
 
 ## Configuration
 
-Supply API keys via `.env` in your project root, shell exports, or the TUI (`Ctrl+P` → Provider Settings):
+API keys via `.env`, shell exports, or the TUI (`Ctrl+P` → Provider Settings):
 
 ```env
-# OpenRouter (access multiple model families)
 OPENROUTER_API_KEY=sk-or-...
-
-# Direct provider keys
 ANTHROPIC_API_KEY=sk-ant-...
 OPENAI_API_KEY=sk-...
 GOOGLE_GENERATIVE_AI_API_KEY=...
@@ -165,29 +127,29 @@ GOOGLE_GENERATIVE_AI_API_KEY=...
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `XETHRYON_REFLECTION` | `1` | Self-reflection loop before presenting code |
-| `XETHRYON_GIT_AWARE` | `1` | Git state injection into agent context |
-| `XETHRYON_AUTONOMY` | `0` | Autonomous mode (also toggled via `F4`) |
-| `XETHRYON_DEBUG` | `false` | Debug logging for memory/skills systems |
+| `XETHRYON_REFLECTION` | `1` | Self-reflection before presenting code |
+| `XETHRYON_GIT_AWARE` | `1` | Git state injection into context |
+| `XETHRYON_AUTONOMY` | `0` | Autonomous mode (also `F4`) |
+| `XETHRYON_DEBUG` | `false` | Debug logging for internals |
 
 ---
 
-## Commands & Skills
+## Commands
 
-Access via slash commands in the TUI or the command palette (`Ctrl+P`):
+Slash commands via the TUI prompt or command palette (`Ctrl+P`):
 
 | Command | Description |
 |---------|-------------|
 | `/verify` | Validate code changes — run tests, check edge cases |
-| `/pr` | One-command PR — auto-branch, commit, push, PR URL |
-| `/debug` | Systematic diagnostics for errors and session state |
-| `/simplify` | Three-pass code review (reuse, quality, efficiency) |
-| `/remember` | Persist learnings and patterns to project memory |
+| `/pr` | Auto-branch, commit, push, generate PR URL |
+| `/debug` | Systematic error diagnostics |
+| `/simplify` | Three-pass code review |
+| `/remember` | Persist patterns to project memory |
 | `/batch` | Parallel work orchestration |
 | `/commit` | Git commit + push with conventional prefixes |
 | `/review` | Review uncommitted changes |
 | `/dream` | Force memory consolidation |
-| `/learn` | Extract non-obvious learnings to AGENTS.md |
+| `/learn` | Extract learnings to AGENTS.md |
 | `/loop` | Recurring prompt scheduler |
 | `/onboard` | Guided project onboarding |
 | `/autopilot` | Continuous autonomous execution |
@@ -197,73 +159,48 @@ Access via slash commands in the TUI or the command palette (`Ctrl+P`):
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────┐
-│                  TUI Thread                      │
-│  Input → Command Parsing → Slash Skills          │
-│  Theme → Render → Agent Switcher (Tab/F4)        │
-└──────────────────┬──────────────────────────────┘
-                   │ BroadcastChannel
-┌──────────────────▼──────────────────────────────┐
-│                Worker Thread                     │
-│                                                  │
-│  ┌─────────┐  ┌──────────┐  ┌───────────────┐   │
-│  │ System   │  │ Memory   │  │ Git Context   │   │
-│  │ Prompt   │  │ Recall   │  │ Injection     │   │
-│  └────┬─────┘  └────┬─────┘  └──────┬────────┘   │
-│       └──────────────┼───────────────┘            │
-│                      ▼                            │
-│              ┌──────────────┐                     │
-│              │  LLM Turn    │ ◄── Tool Calls      │
-│              └──────┬───────┘                     │
-│                     ▼                             │
-│              ┌──────────────┐                     │
-│              │ Reflection   │ ◄── PASS / REVISE   │
-│              │    Gate      │                     │
-│              └──────┬───────┘                     │
-│                     ▼                             │
-│              ┌──────────────┐                     │
-│              │ Autonomy     │ ◄── invoke_skill()  │
-│              │  Checklist   │                     │
-│              └──────┬───────┘                     │
-│                     ▼                             │
-│              Memory Post-Turn Hook                │
-│              (Extract → Store → AutoDream)        │
-└─────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────┐
+│                TUI Thread                     │
+│  Input → Command Parsing → Slash Skills       │
+│  Theme → Render → Agent Switcher (Tab/F4)     │
+└─────────────────┬────────────────────────────┘
+                  │ BroadcastChannel
+┌─────────────────▼────────────────────────────┐
+│               Worker Thread                   │
+│                                               │
+│  System Prompt + Memory Recall + Git Context  │
+│                    ↓                          │
+│              LLM Turn (tool calls)            │
+│                    ↓                          │
+│           Reflection Gate (PASS/REVISE)        │
+│                    ↓                          │
+│         Autonomy Checklist (invoke_skill)      │
+│                    ↓                          │
+│         Memory Post-Turn Hook (extract/store)  │
+└───────────────────────────────────────────────┘
 ```
 
 ---
 
-## Theme Customization
+## Provenance
 
-Edit `packages/opencode/src/cli/cmd/tui/context/theme/xethryon.json` to alter syntax colors, borders, highlights, and accents. Changes take effect on next launch — no recompilation.
-
----
-
-## What's Under The Hood
-
-| System | Origin | Status |
-|--------|--------|--------|
-| TUI + Session Management | OpenCode | ✅ Production |
-| Memory Persistence + AutoDream | Claude Code (ported) | ✅ Production |
-| Cross-Session Memory Retrieval | **Original** | ✅ Production |
-| Self-Reflection Loop | **Original** | ✅ Production |
-| Git-Aware Context Injection | **Original** | ✅ Production |
-| Autonomous Skill Invocation | **Original** | ✅ Production |
-| Swarm Orchestration | Claude Code (ported) | ✅ Production |
-| Bundled Skills System | Claude Code (ported) | ✅ Production |
-| Agent Mode Switching | Hybrid (both) | ✅ Production |
-| Cyberpunk Theme | **Original** | ✅ Production |
+| System | Origin |
+|--------|--------|
+| TUI + Session Management | OpenCode |
+| Memory Persistence + AutoDream | Claude Code (ported) |
+| Bundled Skills System | Claude Code (ported) |
+| Swarm Orchestration | Claude Code (ported) |
+| Cross-Session Memory Retrieval | Original |
+| Self-Reflection Loop | Original |
+| Git-Aware Context | Original |
+| Autonomous Skill Invocation | Original |
+| Agent Mode Switching | Hybrid |
+| Cyberpunk Theme | Original |
 
 ---
 
-## Credits & Attribution
+## Credits
 
-- Terminal interface and session management built upon [OpenCode](https://github.com/anomalyco/opencode) by Anomaly.
-- Memory persistence strategy and context loop architectures inspired by Anthropic's [Claude Code](https://github.com/anthropics/claude-code).
-- Cross-session memory retrieval, self-reflection loop, git-awareness, autonomous skill invocation, and Cyberpunk identity — designed and built by [@EstarinAzx](https://github.com/EstarinAzx).
-
----
-
-<p align="center">
-  <sub>Built different. Ships autonomous.</sub>
-</p>
+- Terminal interface and session management from [OpenCode](https://github.com/anomalyco/opencode) by Anomaly.
+- Memory and context loop patterns from Anthropic's [Claude Code](https://github.com/anthropics/claude-code).
+- Memory retrieval, self-reflection, git-awareness, autonomous skills, and visual identity by [@EstarinAzx](https://github.com/EstarinAzx).
