@@ -16,6 +16,7 @@ import type { Agent } from "@/agent/agent"
 import { Permission } from "@/permission"
 import { Skill } from "@/skill"
 import { loadMemoryPrompt } from "@/xethryon/memory"
+import { getAutonomyPrompt } from "@/xethryon/autonomy"
 
 export namespace SystemPrompt {
   export function provider(model: Provider.Model) {
@@ -83,5 +84,13 @@ export namespace SystemPrompt {
   export async function memory(): Promise<string | undefined> {
     const prompt = await loadMemoryPrompt()
     return prompt ?? undefined
+  }
+
+  /**
+   * Get the autonomy system prompt injection.
+   * Returns instructions for agent auto-switching when autonomy is enabled.
+   */
+  export function autonomy(): string | undefined {
+    return getAutonomyPrompt()
   }
 }

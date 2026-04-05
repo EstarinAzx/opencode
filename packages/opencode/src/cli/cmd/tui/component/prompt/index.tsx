@@ -28,6 +28,7 @@ import { iife } from "@/util/iife"
 import { Locale } from "@/util/locale"
 import { formatDuration } from "@/util/format"
 import { createColors, createFrames } from "../../ui/spinner.ts"
+import { setAutonomy } from "@/xethryon/autonomy"
 import { useDialog } from "@tui/ui/dialog"
 import { DialogProvider as DialogProviderConnect } from "../dialog-provider"
 import { DialogAlert } from "../../ui/dialog-alert"
@@ -160,6 +161,7 @@ export function Prompt(props: PromptProps) {
     extmarkToPartIndex: Map<number, number>
     interrupt: number
     placeholder: number
+    autonomy: boolean
   }>({
     placeholder: randomIndex(list().length),
     prompt: {
@@ -169,6 +171,7 @@ export function Prompt(props: PromptProps) {
     mode: "normal",
     extmarkToPartIndex: new Map(),
     interrupt: 0,
+    autonomy: false,
   })
 
   createEffect(
@@ -941,6 +944,13 @@ export function Prompt(props: PromptProps) {
                     return
                   }
                 }
+                if (keybind.match("autonomy_toggle", e)) {
+                  const next = !store.autonomy
+                  setStore("autonomy", next)
+                  setAutonomy(next)
+                  e.preventDefault()
+                  return
+                }
                 if (e.name === "!" && input.visualCursor.offset === 0) {
                   setStore("placeholder", randomIndex(shell().length))
                   setStore("mode", "shell")
@@ -1093,6 +1103,8 @@ export function Prompt(props: PromptProps) {
                   <Show when={store.mode === "normal"}>
                     {"  MODEL: "}
                     <span style={{ fg: theme.textMuted }}>{local.model.parsed().model}</span>
+                    {"  AUTONOMY: "}
+                    <span style={{ fg: store.autonomy ? theme.success : theme.textMuted }}><b>{store.autonomy ? "ON" : "OFF"}</b></span>
                   </Show>
                 </text>
               </box>
@@ -1200,6 +1212,9 @@ export function Prompt(props: PromptProps) {
                       </text>
                     </Match>
                   </Switch>
+                  <text fg={theme.text}>
+                    <span style={{ bg: theme.backgroundElement, fg: store.autonomy ? theme.success : theme.text }}> {keybind.print("autonomy_toggle")} </span> <span style={{ fg: store.autonomy ? theme.success : theme.textMuted }}>AUTONOMY</span>
+                  </text>
                   <text fg={theme.text}>
                     <span style={{ bg: theme.backgroundElement, fg: theme.text }}> {keybind.print("command_list")} </span> <span style={{ fg: theme.textMuted }}>COMMANDS</span>
                   </text>

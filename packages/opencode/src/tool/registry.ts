@@ -18,6 +18,7 @@ import { SendMessageTool } from "./send_message"
 import { TaskCreateTool } from "./task_create"
 import { TaskGetTool } from "./task_get"
 import { TaskUpdateTool } from "./task_update"
+import { SwitchAgentTool } from "./switch_agent"
 import { TaskListTool } from "./task_list"
 import { TaskStopTool } from "./task_stop"
 import type { Agent } from "../agent/agent"
@@ -148,6 +149,7 @@ export namespace ToolRegistry {
           TaskUpdateTool,
           TaskListTool,
           TaskStopTool,
+          SwitchAgentTool,
           ApplyPatchTool,
           ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [LspTool] : []),
           ...(cfg.experimental?.batch_tool === true ? [BatchTool] : []),
