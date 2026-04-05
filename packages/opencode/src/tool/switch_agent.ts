@@ -10,10 +10,28 @@
 import z from "zod"
 import { Tool } from "./tool"
 
+// Accept both internal names AND display names
+const AGENT_ALIASES: Record<string, string> = {
+  build: "build",
+  construct: "build",
+  plan: "plan",
+  architect: "plan",
+  explore: "explore",
+  recon: "explore",
+  coordinator: "coordinator",
+  coordinate: "coordinator",
+  verification: "verification",
+  validator: "verification",
+}
+
 const parameters = z.object({
   agent: z
-    .enum(["build", "plan", "explore", "coordinator", "verification"])
-    .describe("The agent mode to switch to: build (CONSTRUCT), plan (ARCHITECT), explore (RECON), coordinator (COORDINATE), verification (VALIDATOR)"),
+    .string()
+    .transform((val) => AGENT_ALIASES[val.toLowerCase()] ?? val)
+    .pipe(z.enum(["build", "plan", "explore", "coordinator", "verification"]))
+    .describe(
+      "The agent mode to switch to. Accepts: build/construct (CONSTRUCT), plan/architect (ARCHITECT), explore/recon (RECON), coordinator/coordinate (COORDINATE), verification/validator (VALIDATOR)",
+    ),
   reason: z.string().describe("Brief reason for switching modes").optional(),
 })
 
@@ -22,14 +40,21 @@ export const SwitchAgentTool = Tool.define("switch_agent", {
     "Switch the current agent mode to better match the task at hand.",
     "Each mode has specific capabilities — if the current task falls outside your mode's scope, you MUST switch BEFORE attempting it.",
     "",
+    "=== AGENT VALUES (use any of these) ===",
+    "build OR construct → CONSTRUCT mode",
+    "plan OR architect → ARCHITECT mode",
+    "explore OR recon → RECON mode",
+    "coordinator OR coordinate → COORDINATE mode",
+    "verification OR validator → VALIDATOR mode",
+    "",
     "=== MANDATORY TRIGGERS — switch IMMEDIATELY when you detect these ===",
-    "→ User mentions 'subagent', 'sub-agent', 'team', 'spawn', 'summon', 'parallel agents', 'delegate to agents' → switch to COORDINATE",
-    "→ User asks to 'plan', 'design', 'architect', 'break down', 'roadmap', 'strategy' → switch to ARCHITECT",
-    "→ User asks to 'explore', 'find', 'search code', 'how does X work', 'understand' → switch to RECON",
-    "→ User asks to 'test', 'verify', 'check', 'validate', 'review code' → switch to VALIDATOR",
-    "→ User asks to 'build', 'implement', 'fix', 'create', 'code', 'write' → switch to CONSTRUCT",
-    "→ After finishing planning/architecture → switch to CONSTRUCT to execute",
-    "→ After team work completes and only simple tasks remain → switch to CONSTRUCT",
+    "→ User mentions 'subagent', 'sub-agent', 'team', 'spawn', 'summon', 'parallel agents', 'delegate to agents' → switch to coordinator",
+    "→ User asks to 'plan', 'design', 'architect', 'break down', 'roadmap', 'strategy' → switch to architect",
+    "→ User asks to 'explore', 'find', 'search code', 'how does X work', 'understand' → switch to recon",
+    "→ User asks to 'test', 'verify', 'check', 'validate', 'review code' → switch to validator",
+    "→ User asks to 'build', 'implement', 'fix', 'create', 'code', 'write' → switch to construct",
+    "→ After finishing planning/architecture → switch to construct to execute",
+    "→ After team work completes and only simple tasks remain → switch to construct",
     "",
     "=== MODE CAPABILITIES ===",
     "CONSTRUCT (build) — Writing code, implementing features, fixing bugs, editing files, running commands.",
