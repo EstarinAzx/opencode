@@ -4,23 +4,26 @@
  * Global state for the autonomy toggle.
  * When enabled, the AI can autonomously switch agent modes
  * based on task requirements.
+ *
+ * Uses globalThis to guarantee state sharing across all
+ * bundled module instances in the compiled binary.
  */
 
-let _autonomyEnabled = false
+const AUTONOMY_KEY = "__xethryon_autonomy_enabled__"
 
 /**
  * Set the global autonomy state.
  * Called by the TUI when the user presses f4.
  */
 export function setAutonomy(enabled: boolean): void {
-  _autonomyEnabled = enabled
+  ;(globalThis as any)[AUTONOMY_KEY] = enabled
 }
 
 /**
  * Check if autonomy mode is enabled.
  */
 export function isAutonomyEnabled(): boolean {
-  return _autonomyEnabled
+  return !!(globalThis as any)[AUTONOMY_KEY]
 }
 
 /**
@@ -28,7 +31,7 @@ export function isAutonomyEnabled(): boolean {
  * Returns undefined if autonomy is OFF.
  */
 export function getAutonomyPrompt(): string | undefined {
-  if (!_autonomyEnabled) return undefined
+  if (!isAutonomyEnabled()) return undefined
 
   return [
     "<autonomy-mode>",
