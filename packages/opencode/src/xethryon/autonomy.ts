@@ -5,25 +5,27 @@
  * When enabled, the AI can autonomously switch agent modes
  * based on task requirements.
  *
- * Uses globalThis to guarantee state sharing across all
- * bundled module instances in the compiled binary.
+ * Uses process.env to guarantee state sharing — environment
+ * variables are a single OS-level store that no bundler can duplicate.
  */
-
-const AUTONOMY_KEY = "__xethryon_autonomy_enabled__"
 
 /**
  * Set the global autonomy state.
  * Called by the TUI when the user presses f4.
  */
 export function setAutonomy(enabled: boolean): void {
-  ;(globalThis as any)[AUTONOMY_KEY] = enabled
+  if (enabled) {
+    process.env.XETHRYON_AUTONOMY = "1"
+  } else {
+    delete process.env.XETHRYON_AUTONOMY
+  }
 }
 
 /**
  * Check if autonomy mode is enabled.
  */
 export function isAutonomyEnabled(): boolean {
-  return !!(globalThis as any)[AUTONOMY_KEY]
+  return process.env.XETHRYON_AUTONOMY === "1"
 }
 
 /**
