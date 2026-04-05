@@ -1,94 +1,41 @@
-# XETHRYON Install Script for Windows
-# Usage: irm https://raw.githubusercontent.com/EstarinAzx/XETHRYON/master/install.ps1 | iex
+#!/usr/bin/env pwsh
+# Xethryon Installer for Windows x64
+# Usage: irm https://raw.githubusercontent.com/EstarinAzx/XETHRYON/xethryon/install.ps1 | iex
 
 $ErrorActionPreference = "Stop"
 
 $repo = "EstarinAzx/XETHRYON"
-$binaryName = "xethryon.exe"
-$target = "opencode-windows-x64"
+$dest = "$env:LOCALAPPDATA\xethryon\bin"
+$exe = "$dest\xethryon.exe"
 
-# Install directory
-if ($env:XETHRYON_INSTALL_DIR) {
-    $installDir = $env:XETHRYON_INSTALL_DIR
-} else {
-    $installDir = "$env:LOCALAPPDATA\xethryon\bin"
-}
+Write-Host "Installing Xethryon..." -ForegroundColor Cyan
 
-New-Item -ItemType Directory -Force -Path $installDir | Out-Null
+# Get latest release download URL
+$release = Invoke-RestMethod "https://api.github.com/repos/$repo/releases/latest"
+$asset = $release.assets | Where-Object { $_.name -eq "xethryon-windows-x64.exe" }
 
-Write-Host ""
-Write-Host "  XETHRYON — NEURAL INTERFACE" -ForegroundColor Cyan
-Write-Host "  Installing for Windows x64..." -ForegroundColor DarkGray
-Write-Host "  Target: $installDir\$binaryName" -ForegroundColor DarkGray
-Write-Host ""
-
-# Try to get latest release
-try {
-    $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases/latest" -Headers @{ "User-Agent" = "XETHRYON-Installer" }
-    $asset = $release.assets | Where-Object { $_.name -match $target } | Select-Object -First 1
-
-    if (-not $asset) {
-        throw "No release asset found"
-    }
-
-    $downloadUrl = $asset.browser_download_url
-    $tempZip = "$env:TEMP\xethryon-download.zip"
-
-    Write-Host "  Downloading from release..." -ForegroundColor Yellow
-    Invoke-WebRequest -Uri $downloadUrl -OutFile $tempZip -UseBasicParsing
-
-    Write-Host "  Extracting..." -ForegroundColor Yellow
-    $tempExtract = "$env:TEMP\xethryon-extract"
-    if (Test-Path $tempExtract) { Remove-Item -Recurse -Force $tempExtract }
-    Expand-Archive -Path $tempZip -DestinationPath $tempExtract -Force
-
-    $exe = Get-ChildItem -Path $tempExtract -Filter "opencode.exe" -Recurse | Select-Object -First 1
-    if ($exe) {
-        Copy-Item -Path $exe.FullName -Destination "$installDir\$binaryName" -Force
-    } else {
-        throw "Binary not found in archive"
-    }
-
-    Remove-Item -Force $tempZip -ErrorAction SilentlyContinue
-    Remove-Item -Recurse -Force $tempExtract -ErrorAction SilentlyContinue
-
-} catch {
-    Write-Host "  No release found. Falling back to build from source..." -ForegroundColor DarkYellow
-    Write-Host ""
-    Write-Host "  To install from source:" -ForegroundColor White
-    Write-Host "    git clone https://github.com/$repo.git" -ForegroundColor Gray
-    Write-Host "    cd XETHRYON" -ForegroundColor Gray
-    Write-Host "    bun install" -ForegroundColor Gray
-    Write-Host "    cd packages\opencode" -ForegroundColor Gray
-    Write-Host "    bun run build --single --skip-embed-web-ui" -ForegroundColor Gray
-    Write-Host ""
+if (-not $asset) {
+    Write-Host "Error: No Windows binary found in latest release." -ForegroundColor Red
     exit 1
 }
 
+$url = $asset.browser_download_url
+Write-Host "Downloading from $url"
+
+# Create directory and download
+New-Item -ItemType Directory -Force -Path $dest | Out-Null
+Invoke-WebRequest -Uri $url -OutFile $exe -UseBasicParsing
+
 # Add to PATH if not already there
 $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
-if ($userPath -notlike "*$installDir*") {
-    Write-Host "  Adding to PATH..." -ForegroundColor Yellow
-    [Environment]::SetEnvironmentVariable("Path", "$userPath;$installDir", "User")
+if ($userPath -notlike "*$dest*") {
+    [Environment]::SetEnvironmentVariable("Path", "$userPath;$dest", "User")
+    $env:Path = "$env:Path;$dest"
+    Write-Host "Added $dest to PATH" -ForegroundColor Green
 }
 
-# Always refresh current session PATH
-$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-
 Write-Host ""
-Write-Host "  Installed: $installDir\$binaryName" -ForegroundColor Green
+Write-Host "Xethryon installed to $exe" -ForegroundColor Green
+Write-Host "Version: $($release.tag_name)" -ForegroundColor DarkGray
 Write-Host ""
-
-# Test if it's actually reachable
-$test = Get-Command xethryon -ErrorAction SilentlyContinue
-if ($test) {
-    Write-Host "  Run now:" -ForegroundColor White
-    Write-Host "    xethryon" -ForegroundColor Cyan
-} else {
-    Write-Host "  Run now:" -ForegroundColor White
-    Write-Host "    & `"$installDir\$binaryName`"" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "  Or restart your terminal, then:" -ForegroundColor DarkGray
-    Write-Host "    xethryon" -ForegroundColor DarkGray
-}
-Write-Host ""
+Write-Host "Open a new terminal and run: xethryon" -ForegroundColor Cyan
