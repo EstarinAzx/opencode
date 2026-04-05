@@ -36,12 +36,14 @@ import { Log } from "@/util/log"
 import { LspTool } from "./lsp"
 import { Truncate } from "./truncate"
 import { ApplyPatchTool } from "./apply_patch"
+import { InvokeSkillTool } from "./invoke_skill"
 import { Glob } from "../util/glob"
 import { pathToFileURL } from "url"
 import { Effect, Layer, ServiceMap } from "effect"
 import { InstanceState } from "@/effect/instance-state"
 import { makeRuntime } from "@/effect/run-service"
 import { Env } from "../env"
+import { isAutonomyEnabled } from "@/xethryon/autonomy"
 
 export namespace ToolRegistry {
   const log = Log.create({ service: "tool.registry" })
@@ -154,6 +156,8 @@ export namespace ToolRegistry {
           ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [LspTool] : []),
           ...(cfg.experimental?.batch_tool === true ? [BatchTool] : []),
           ...(Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE && Flag.OPENCODE_CLIENT === "cli" ? [PlanExitTool] : []),
+          // Autonomous skill invocation — only when autonomy mode is ON
+          ...(isAutonomyEnabled() ? [InvokeSkillTool] : []),
           ...custom,
         ]
       })
