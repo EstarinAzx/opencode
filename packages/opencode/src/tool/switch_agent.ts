@@ -1,11 +1,14 @@
 /**
  * Autonomy tool: switch_agent
- * Allows the AI to dynamically switch its agent mode when autonomy is enabled.
+ * Allows the AI to dynamically switch its agent mode.
+ *
+ * The tool itself is always functional — the autonomy toggle
+ * in the TUI controls whether the AI is instructed to USE it
+ * (via system prompt injection on the client side).
  */
 
 import z from "zod"
 import { Tool } from "./tool"
-import { isAutonomyEnabled } from "@/xethryon/autonomy"
 
 const parameters = z.object({
   agent: z
@@ -17,22 +20,10 @@ const parameters = z.object({
 export const SwitchAgentTool = Tool.define("switch_agent", {
   description: [
     "Switch the current agent mode to better match the task at hand.",
-    "Only available when AUTONOMY mode is ON.",
     "Modes: build (CONSTRUCT), plan (ARCHITECT), explore (RECON), coordinator (COORDINATE), verification (VALIDATOR).",
   ].join(" "),
   parameters,
   async execute(args, ctx) {
-    if (!isAutonomyEnabled()) {
-      return {
-        output: "Autonomy mode is OFF. Cannot switch agents. The user must press f4 to enable autonomy.",
-        title: "Switch Agent — Blocked",
-        metadata: {
-          agent: args.agent,
-          switched: false,
-        },
-      }
-    }
-
     const cyberNames: Record<string, string> = {
       build: "CONSTRUCT",
       plan: "ARCHITECT",

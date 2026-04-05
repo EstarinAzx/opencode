@@ -1516,8 +1516,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
                   Effect.promise(() => MessageV2.toModelMessages(msgs, model)),
                   Effect.promise(() => SystemPrompt.memory()),
                 ])
-                const autonomyPrompt = SystemPrompt.autonomy()
-                const system = [...env, ...(skills ? [skills] : []), ...instructions, ...(memoryPrompt ? [memoryPrompt] : []), ...(autonomyPrompt ? [autonomyPrompt] : [])]
+                const system = [...env, ...(skills ? [skills] : []), ...instructions, ...(memoryPrompt ? [memoryPrompt] : [])]
                 const format = lastUser.format ?? { type: "text" as const }
                 if (format.type === "json_schema") system.push(STRUCTURED_OUTPUT_SYSTEM_PROMPT)
                 const result = yield* handle.process({
