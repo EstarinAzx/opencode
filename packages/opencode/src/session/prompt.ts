@@ -1571,6 +1571,9 @@ NOTE: At any point in time through this workflow you should feel free to ask the
                   ? yield* Effect.promise(() => SystemPrompt.relevantMemories(userQueryText))
                   : undefined
 
+                // Autonomy prompt — tells the agent about mode switching + skill self-invocation
+                const autonomyPrompt = SystemPrompt.autonomy()
+
                 const system = [
                   ...env,
                   ...(skills ? [skills] : []),
@@ -1578,6 +1581,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
                   ...(memoryPrompt ? [memoryPrompt] : []),
                   ...(recalledMemories ? [recalledMemories] : []),
                   ...(gitCtx ? [gitCtx] : []),
+                  ...(autonomyPrompt ? [autonomyPrompt] : []),
                 ]
                 const format = lastUser.format ?? { type: "text" as const }
                 if (format.type === "json_schema") system.push(STRUCTURED_OUTPUT_SYSTEM_PROMPT)
