@@ -89,3 +89,8 @@ export {
   runMemoryPostTurnHook,
   type MemoryHookContext,
 } from "./memoryHook.js"
+
+// --- Memory Retrieval (prompt-time query-based recall) ---
+export {
+  retrieveRelevantMemories,
+} from "./retrieveMemories.js"

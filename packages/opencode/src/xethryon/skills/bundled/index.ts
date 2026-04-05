@@ -17,6 +17,7 @@ import { registerDebugSkill } from "./debug.js"
 import { registerLoopSkill } from "./loop.js"
 import { registerAutopilotSkill } from "./autopilot.js"
 import { registerOnboardSkill } from "./onboard.js"
+import { registerPrSkill } from "./pr.js"
 
 let _initialized = false
 
@@ -41,5 +42,8 @@ export function initBundledSkills(): void {
   // Agentic skills
   registerAutopilotSkill()
   registerOnboardSkill()
+
+  // Git workflow skills
+  registerPrSkill()
 }
 

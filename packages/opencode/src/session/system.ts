@@ -15,8 +15,9 @@ import type { Provider } from "@/provider/provider"
 import type { Agent } from "@/agent/agent"
 import { Permission } from "@/permission"
 import { Skill } from "@/skill"
-import { loadMemoryPrompt } from "@/xethryon/memory"
+import { loadMemoryPrompt, retrieveRelevantMemories } from "@/xethryon/memory"
 import { getAutonomyPrompt } from "@/xethryon/autonomy"
+import { getGitContextPrompt } from "@/xethryon/git"
 
 export namespace SystemPrompt {
   export function provider(model: Provider.Model) {
@@ -92,5 +93,24 @@ export namespace SystemPrompt {
    */
   export function autonomy(): string | undefined {
     return getAutonomyPrompt()
+  }
+
+  /**
+   * Retrieve memories relevant to the user's current query.
+   * Returns recalled memories formatted for system prompt injection,
+   * or undefined if nothing is relevant.
+   */
+  export async function relevantMemories(query: string, signal?: AbortSignal): Promise<string | undefined> {
+    const result = await retrieveRelevantMemories(query, signal)
+    return result ?? undefined
+  }
+
+  /**
+   * Get the current git state context for system prompt injection.
+   * Returns branch, status, merge/rebase state, and actionable guidance.
+   */
+  export async function gitContext(): Promise<string | undefined> {
+    const result = await getGitContextPrompt()
+    return result ?? undefined
   }
 }

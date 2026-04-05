@@ -15,6 +15,7 @@ import PROMPT_COORDINATOR from "./prompt/coordinator.txt"
 import PROMPT_VERIFICATION from "./prompt/verification.txt"
 import PROMPT_SUMMARY from "./prompt/summary.txt"
 import PROMPT_TITLE from "./prompt/title.txt"
+import PROMPT_REFLECTION from "./prompt/reflection.txt"
 import { Permission } from "@/permission"
 import { mergeDeep, pipe, sortBy, values } from "remeda"
 import { Global } from "@/global"
@@ -281,6 +282,21 @@ export namespace Agent {
                 user,
               ),
               prompt: PROMPT_SUMMARY,
+            },
+            reflection: {
+              name: "reflection",
+              mode: "primary",
+              options: {},
+              native: true,
+              hidden: true,
+              permission: Permission.merge(
+                defaults,
+                Permission.fromConfig({
+                  "*": "deny",
+                }),
+                user,
+              ),
+              prompt: PROMPT_REFLECTION,
             },
           }
 

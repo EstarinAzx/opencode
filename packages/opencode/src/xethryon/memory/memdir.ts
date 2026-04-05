@@ -228,5 +228,8 @@ export async function loadMemoryPrompt(): Promise<string | null> {
   const autoDir = getAutoMemPath()
   await ensureMemoryDirExists(autoDir)
 
-  return buildMemoryLines("auto memory", autoDir).join("\n")
+  return buildMemoryPrompt({
+    displayName: "Xethryon Memory",
+    memoryDir: autoDir,
+  })
 }

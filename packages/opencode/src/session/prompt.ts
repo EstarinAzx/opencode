@@ -18,6 +18,7 @@ import { SystemPrompt } from "./system"
 import { Instruction } from "./instruction"
 import { Plugin } from "../plugin"
 import { initMemoryServices, runMemoryPostTurnHook } from "@/xethryon/memory"
+import { runReflection } from "@/xethryon/reflection"
 import PROMPT_PLAN from "../session/prompt/plan.txt"
 import BUILD_SWITCH from "../session/prompt/build-switch.txt"
 import MAX_STEPS from "../session/prompt/max-steps.txt"
@@ -1348,6 +1349,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
           let _lastModel: Provider.Model | undefined
           let _lastAgent: Agent.Info | undefined
           let _lastUser2: MessageV2.User | undefined
+          let _reflected = false  // Max 1 self-reflection per turn
 
           while (true) {
             yield* status.set(sessionID, { type: "busy" })
@@ -1384,6 +1386,47 @@ NOTE: At any point in time through this workflow you should feel free to ask the
               !hasToolCalls &&
               lastUser.id < lastAssistant.id
             ) {
+              // Self-reflection gate: review before presenting to user
+              if (!_reflected && _lastAgent && _lastModel && _lastUser2) {
+                const verdict = yield* Effect.promise(async () => {
+                  try {
+                    return await runReflection({
+                      sessionID,
+                      messages: msgs,
+                      llmStream: LLM.stream,
+                      agent: _lastAgent!,
+                      model: _lastModel!,
+                      user: _lastUser2!,
+                    })
+                  } catch (e) {
+                    log.warn("reflection failed", { error: e })
+                    return { action: "pass" as const }
+                  }
+                })
+                if (verdict.action === "revise" && verdict.critique) {
+                  _reflected = true
+                  log.info("reflection requested revision", { critique: verdict.critique })
+                  // Inject critique as synthetic user message for the agent to address
+                  const critiqueMsg: MessageV2.User = {
+                    id: MessageID.ascending(),
+                    sessionID,
+                    role: "user",
+                    time: { created: Date.now() },
+                    agent: lastUser.agent,
+                    model: lastUser.model,
+                  }
+                  yield* sessions.updateMessage(critiqueMsg)
+                  yield* sessions.updatePart({
+                    id: PartID.ascending(),
+                    messageID: critiqueMsg.id,
+                    sessionID,
+                    type: "text",
+                    text: `<self-reflection>\nYour self-review identified issues with your previous response. Please address the following before finalizing:\n\n${verdict.critique}\n</self-reflection>`,
+                    synthetic: true,
+                  })
+                  continue // Re-enter loop for one more pass
+                }
+              }
               log.info("exiting loop", { sessionID })
               break
             }
@@ -1509,14 +1552,33 @@ NOTE: At any point in time through this workflow you should feel free to ask the
 
                 yield* plugin.trigger("experimental.chat.messages.transform", {}, { messages: msgs })
 
-                const [skills, env, instructions, modelMsgs, memoryPrompt] = yield* Effect.all([
+                const [skills, env, instructions, modelMsgs, memoryPrompt, gitCtx] = yield* Effect.all([
                   Effect.promise(() => SystemPrompt.skills(agent)),
                   Effect.promise(() => SystemPrompt.environment(model)),
                   instruction.system().pipe(Effect.orDie),
                   Effect.promise(() => MessageV2.toModelMessages(msgs, model)),
                   Effect.promise(() => SystemPrompt.memory()),
+                  Effect.promise(() => SystemPrompt.gitContext()),
                 ])
-                const system = [...env, ...(skills ? [skills] : []), ...instructions, ...(memoryPrompt ? [memoryPrompt] : [])]
+
+                // Extract user query for memory retrieval
+                const lastUserMsgForMemory = msgs.findLast((m) => m.info.role === "user")
+                const userQueryText = lastUserMsgForMemory?.parts
+                  .filter((p): p is MessageV2.TextPart => p.type === "text" && !p.synthetic)
+                  .map((p) => p.text)
+                  .join("\n") ?? ""
+                const recalledMemories = userQueryText.length > 5
+                  ? yield* Effect.promise(() => SystemPrompt.relevantMemories(userQueryText))
+                  : undefined
+
+                const system = [
+                  ...env,
+                  ...(skills ? [skills] : []),
+                  ...instructions,
+                  ...(memoryPrompt ? [memoryPrompt] : []),
+                  ...(recalledMemories ? [recalledMemories] : []),
+                  ...(gitCtx ? [gitCtx] : []),
+                ]
                 const format = lastUser.format ?? { type: "text" as const }
                 if (format.type === "json_schema") system.push(STRUCTURED_OUTPUT_SYSTEM_PROMPT)
                 const result = yield* handle.process({
