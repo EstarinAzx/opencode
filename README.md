@@ -58,15 +58,29 @@ The agent sees your git state at all times — branch, uncommitted changes, merg
 - Conflict detection during merge/rebase
 - Toggle with `XETHRYON_GIT_AWARE=0`
 
-### ⚡ Autonomous Skill Invocation
-When autonomy is ON (`F4`), the agent doesn't wait to be told — it acts. After writing code, it runs a mandatory post-task checklist:
+### ⚡ Autonomy Mode (`F4`)
+Press `F4` to unlock full autonomous operation. This isn't just a permission toggle — it fundamentally changes how the agent thinks.
+
+**Dynamic Agent Switching:** The agent reads the intent behind your prompt and pivots between specialized modes on its own. You don't need to manually `Tab` between agents — autonomy handles it:
+
+```
+"plan a refactor of the auth module"     → auto-switches to ARCHITECT
+"explore how the payment system works"    → auto-switches to RECON
+"create a team to fix these 5 bugs"       → auto-switches to COORDINATE
+"verify the test suite passes"            → auto-switches to VALIDATOR
+plan complete, ready to implement          → auto-switches back to CONSTRUCT
+```
+
+The agent uses the `switch_agent` tool internally — you see the mode change in the status bar, but the transition is seamless. It can also switch mid-task: start planning in ARCHITECT, then pivot to CONSTRUCT when it's ready to code.
+
+**Autonomous Skill Invocation:** After writing code, the agent runs a mandatory post-task checklist without being told:
 
 1. ✅ Did I create/modify code? → auto-invoke `/verify`
 2. 💾 Did I learn a project pattern? → auto-invoke `/remember`
 3. 📦 Is the task complete? → auto-invoke `/pr`
 4. 🔍 Did something fail? → auto-invoke `/debug`
 
-This turns a one-shot coding assistant into a full autonomous workflow engine.
+Combined, this means a single prompt like *"refactor the config parser"* can trigger: ARCHITECT (plan) → CONSTRUCT (implement) → `/verify` (test) → `/pr` (ship) — all without intervention.
 
 ### 🐝 Swarm Orchestration
 Spawn parallel AI teammates for complex operations. The swarm system uses file-based IPC, shared task boards, and isolated sub-sessions.
