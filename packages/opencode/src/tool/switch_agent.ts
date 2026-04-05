@@ -9,6 +9,7 @@
 
 import z from "zod"
 import { Tool } from "./tool"
+import { isAutonomyEnabled } from "../xethryon/autonomy"
 
 // Accept both internal names AND display names
 const AGENT_ALIASES: Record<string, string> = {
@@ -67,6 +68,17 @@ export const SwitchAgentTool = Tool.define("switch_agent", {
   ].join("\n"),
   parameters,
   async execute(args, ctx) {
+    if (!isAutonomyEnabled()) {
+      return {
+        output: "ERROR: Autonomy mode is currently DISABLED by the user. You are not allowed to switch agent modes. You must proceed with the task in your current mode, and inform the user that you cannot switch.",
+        title: `❌ Switch rejected (Autonomy OFF)`,
+        metadata: {
+          agent: args.agent,
+          switched: false,
+        },
+      }
+    }
+
     const cyberNames: Record<string, string> = {
       build: "CONSTRUCT",
       plan: "ARCHITECT",
