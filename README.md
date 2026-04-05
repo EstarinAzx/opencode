@@ -1,77 +1,64 @@
-<p align="center">
-<pre align="center">
-██╗  ██╗███████╗████████╗██╗  ██╗██████╗ ██╗   ██╗ ██████╗ ███╗   ██╗
-╚██╗██╔╝██╔════╝╚══██╔══╝██║  ██║██╔══██╗╚██╗ ██╔╝██╔═══██╗████╗  ██║
- ╚███╔╝ █████╗     ██║   ███████║███████║ ╚████╔╝ ██║   ██║██╔██╗ ██║
- ██╔██╗ ██╔══╝     ██║   ██╔══██║██╔══██║  ╚██╔╝  ██║   ██║██║╚██╗██║
-██╔╝ ██╗███████╗   ██║   ██║  ██║██║  ██║   ██║   ╚██████╔╝██║ ╚████║
-╚═╝  ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═══╝
-</pre>
-</p>
+# XETHRYON
 
-<p align="center"><b>[◈] &nbsp; N E U R A L &nbsp; I N T E R F A C E</b></p>
-<p align="center"><i>Designation: XETHRYON ARCHIVE 7B — Exhaustive software engineering data retrieval.</i></p>
-<p align="center">Built on <a href="https://github.com/anomalyco/opencode">OpenCode</a> + <a href="https://github.com/anthropics/claude-code">Claude Code</a> architecture.</p>
+Xethryon is an advanced, terminal-based AI software engineering agent. Built as a powerful hybrid fork, it combines the robust terminal user interface (TUI) and dynamic session management of [OpenCode](https://opencode.ai) with the persistent memory, consolidation routines, and autonomous architectures inspired by Anthropic's [Claude Code](https://github.com/anthropics/claude-code).
+
+The result is a contextually aware coding agent that remembers project details across multiple sessions, natively supports spawning parallel sub-agent teams, and seamlessly adapts to different workflows.
 
 ---
 
-## What is XETHRYON?
+## Key Features
 
-XETHRYON is a **hybrid fork** that merges the best of two codebases:
-
-- **[OpenCode](https://opencode.ai)** — open-source TUI coding agent (session management, multi-provider, tool execution)
-- **[Claude Code](https://github.com/anthropics/claude-code)** — Anthropic's agent architecture (persistent memory, auto-extraction, consolidation)
-
-The result is an AI coding agent that **remembers across sessions**, ships with **bundled skills**, and can **spawn parallel teammate agents** to tackle complex tasks.
-
-### Key Features
-
-- 🧠 **Persistent Memory** — auto-extracts learnings from every conversation into durable memory files
-- 🌙 **AutoDream Consolidation** — background memory cleanup that fires when enough sessions accumulate
-- ⚡ **Bundled Skills** — `/verify`, `/simplify`, `/batch`, `/remember`, `/debug`, `/loop`
-- 🐝 **Swarm Teams** — spawn parallel AI teammates with file-based IPC and shared task boards
-- 🔍 **LLM-Powered Relevance** — memories ranked by AI, not just keyword matching
-- 🎨 **Cyberpunk 2077 Theme** — dark interface with neon accents
-- ⚡ **Custom Agents** — CONSTRUCT, STRATAGEM, COORDINATE, RECON, VALIDATOR
-- 🔌 **Provider Agnostic** — Claude, OpenAI, Google, OpenRouter, local models, and more
-
-> This is **not** affiliated with the OpenCode team or Anthropic. It's a community fork combining features from both.
+- 🧠 **Persistent Memory System**: Automatically extracts learnings, documentation, and context from every conversation into durable memory files, ensuring project context isn't lost between sessions.
+- 🌙 **AutoDream Consolidation**: Runs background memory cleanup and optimization routines, consolidating notes when enough sessions accumulate.
+- 🐝 **Local Swarm Teams**: Capable of spawning parallel AI teammates, utilizing file-based inter-process communication (IPC), and shared task boards to orchestrate complex operations concurrently.
+- 🤖 **Autonomous Adapting**: Dynamically switches between specialized agent modes (`CONSTRUCT`, `ARCHITECT`, `RECON`, `COORDINATE`, `VALIDATOR`) based on the specific requirements of your prompts.
+- ⚡ **Bundled Execution Skills**: Comes packed with advanced out-of-the-box skills: `/verify`, `/simplify`, `/batch`, `/remember`, `/debug`, and `/loop`.
+- 🔍 **AI-Ranked Relevance**: Leverages intelligent, LLM-powered context ranking instead of primitive keyword matching to pull the exact memory needed for the task.
+- 🔌 **Provider Agnostic**: Bring your own keys. Natively supports Anthropic, OpenAI, Google, OpenRouter, and local models.
+- 🎨 **Immersive TUI Design**: Highly customizable, smooth terminal interface shipping by default with an aesthetic, dark-themed Cyberpunk color palette.
 
 ---
 
 ## Quick Install
 
-### From Source (Recommended)
+### Prerequisites
 
-**Prerequisites:** [Bun](https://bun.sh) (v1.1+), [Git](https://git-scm.com), an API key (OpenRouter, Anthropic, OpenAI, Google, etc.)
+- [Bun](https://bun.sh) (v1.1+)
+- Git
+- Target LLM API Key (OpenRouter, Anthropic, OpenAI, Google, etc.)
 
-```bash
-git clone https://github.com/EstarinAzx/XETHRYON.git
-cd XETHRYON
-bun install
-```
+### Build from Source (Recommended)
 
-### Build the `xethryon` binary
+1. **Clone the repository and install dependencies:**
 
-```bash
-cd packages/opencode
-bun run build --single --skip-embed-web-ui
-```
+   ```bash
+   git clone https://github.com/EstarinAzx/XETHRYON.git
+   cd XETHRYON
+   bun install
+   ```
 
-The binary is output to `dist/opencode-<platform>/bin/xethryon` (or `xethryon.exe` on Windows).
+2. **Build the binary executable:**
 
-### Add to PATH (use from any directory)
+   ```bash
+   cd packages/opencode
+   bun run build --single --skip-embed-web-ui
+   ```
+
+   *The compiled binary will be output to `dist/opencode-<platform>-<arch>/bin/xethryon` (or `xethryon.exe` on Windows).*
+
+### Adding to PATH
+
+To use `xethryon` across your entire system, add it to your PATH:
 
 **Windows (PowerShell — run as admin):**
 
 ```powershell
-# Copy to a location on PATH
 $dest = "$env:LOCALAPPDATA\Programs\xethryon"
 New-Item -ItemType Directory -Force -Path $dest | Out-Null
 Copy-Item "packages\opencode\dist\opencode-windows-x64\bin\xethryon.exe" -Destination "$dest\xethryon.exe"
 [Environment]::SetEnvironmentVariable("Path", "$env:Path;$dest", "User")
 
-# Now you can run from anywhere:
+# Launch anywhere
 xethryon
 ```
 
@@ -79,204 +66,86 @@ xethryon
 
 ```bash
 sudo cp packages/opencode/dist/opencode-$(uname -s | tr A-Z a-z)-$(uname -m)/bin/xethryon /usr/local/bin/
-# Now you can run from anywhere:
+
+# Launch anywhere
 xethryon
-```
-
-### Run in dev mode (without building)
-
-```bash
-cd packages/opencode
-bun run dev
 ```
 
 ---
 
 ## Configuration
 
-Create a `.env` file in the project root with your API key:
+Xethryon connects to inference providers using standard environment variables. You can supply them by creating a `.env` file in your project root, exporting them in your profile, or configuring them via the TUI (Press `Ctrl+P` → Commands → Provider Settings).
 
 ```env
-# OpenRouter (recommended — access to all models)
+# OpenRouter (Great for accessing multiple model families)
 OPENROUTER_API_KEY=sk-or-...
 
-# Or use any other provider:
-# ANTHROPIC_API_KEY=sk-ant-...
-# OPENAI_API_KEY=sk-...
-# GOOGLE_GENERATIVE_AI_API_KEY=...
-```
-
-You can also configure providers through the TUI — press `Ctrl+P` → Commands → Provider Settings.
-
----
-
-## Memory System
-
-The memory system runs automatically in the background — no configuration needed.
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    You chat normally                      │
-│                         ↓                                │
-│  ┌──────────────────────────────────────────────────┐   │
-│  │ Post-Turn Hook (background, non-blocking)         │   │
-│  │                                                    │   │
-│  │  1. Session Memory ─── LLM summarizes convo       │   │
-│  │  2. Extract Memories ── pulls durable learnings   │   │
-│  │  3. AutoDream ──────── consolidates if 24h+5 sess │   │
-│  └──────────────────────────────────────────────────┘   │
-│                         ↓                                │
-│     ~/.xethryon/projects/<project>/memory/                │
-│     ├── MEMORY.md          (index — loaded in prompt)    │
-│     ├── architecture.md    (project patterns)            │
-│     ├── user_prefs.md      (how you like things done)    │
-│     └── session_notes.md   (running conversation log)    │
-└─────────────────────────────────────────────────────────┘
+# Direct Provider Keys
+ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...
+GOOGLE_GENERATIVE_AI_API_KEY=...
 ```
 
 ---
 
-## Skills System
+## Core Systems Overview
 
-Bundled skills ship with the CLI and appear in the slash-command palette:
+### Persistent Memory Workflow
 
-| Skill | Description |
-|---|---|
-| `/verify` | Validate code changes — runs tests, checks edge cases |
-| `/batch` | Parallel work orchestration — plan, spawn workers, track |
-| `/simplify` | Three-pass code review (reuse, quality, efficiency) |
-| `/remember` | Review memories and promote key learnings to AGENTS.md |
-| `/debug` | Session diagnostics — context, history, state |
-| `/loop` | Recurring prompt scheduling |
+The memory subsystem is entirely hands-off and runs automatically in the background.
 
----
+1. **Session Summary:** The LLM summarizes every active session post-turn.
+2. **Context Extraction:** Key durable learnings are extracted automatically.
+3. **AutoDream Consolidation:** Memory states are optimized when 24 hours pass or 5 sessions accumulate.
 
-## Swarm / Teams
+Memories are securely stored at `~/.xethryon/projects/<project>/memory/` maintaining your continuous project architecture mapping (`architecture.md`), preferences (`user_prefs.md`), and overall memory index (`MEMORY.md`).
 
-Spawn parallel AI teammates that work on related tasks concurrently:
+### Swarm orchestration
 
-```
-┌────────────────────────────────────────────┐
-│   You (Team Lead)                           │
-│                                             │
-│   team_create("auth-refactor", teammates=[  │
-│     { name: "types", prompt: "..." },       │
-│     { name: "tests", prompt: "..." },       │
-│   ])                                        │
-│              ↓                              │
-│   ┌──────────┐  ┌──────────┐               │
-│   │ @types   │  │ @tests   │   (parallel)  │
-│   │ sub-sess │  │ sub-sess │               │
-│   └────┬─────┘  └────┬─────┘               │
-│        │              │                     │
-│        └──────┬───────┘                     │
-│               ↓                             │
-│     .opencode/swarm/auth-refactor/          │
-│     ├── config.json  (team roster)          │
-│     ├── inboxes/     (file-based IPC)       │
-│     └── tasks/       (shared task board)    │
-└────────────────────────────────────────────┘
-```
+Parallel workflows can be orchestrated via the `COORDINATE` agent or manually via skills. The Swarm sub-system spins up isolated environment states (`sub-sess`) with interconnected file-based inbox systems.
 
-### Swarm Tools
+**Available Swarm Tools:**
+`team_create`, `team_delete`, `send_message`, `task_create`, `task_get`, `task_update`, `task_list`, `task_stop`.
 
-| Tool | Description |
-|---|---|
-| `team_create` | Create a team + spawn initial teammates |
-| `team_delete` | Delete team, abort teammates, clean up |
-| `send_message` | Send message via file-based mailbox |
-| `task_create` | Add task to shared board |
-| `task_get` | Get task details |
-| `task_update` | Update task status/owner |
-| `task_list` | List/filter tasks |
-| `task_stop` | Abort a running teammate |
+### Agent Architecture
 
----
+You can manually switch your active companion utilizing `Tab`, or rely on Xethryon's intrinsic autonomy to pivot appropriately. 
 
-## Agents
-
-Switch between agents with `Tab`:
-
-| Agent | Codename | Description |
+| Role | Codename | Primary Function |
 |---|---|---|
-| **Build** | `CONSTRUCT` | Default full-access agent for development |
-| **Plan** | `STRATAGEM` | Read-only agent for analysis and exploration |
-| **Coordinator** | `COORDINATE` | Multi-agent orchestration for complex tasks |
-| **Explore** | `RECON` | Code exploration and search |
-| **Verification** | `VALIDATOR` | Code review and validation |
+| **Build** | `CONSTRUCT` | Full-access agent for direct code implementation and development. |
+| **Plan** | `ARCHITECT` | Read-only agent optimized for deep architectural analysis and exploration. |
+| **Manage** | `COORDINATE` | Team-lead agent specifically tuned for orchestrating parallel sub-agents. |
+| **Search** | `RECON` | Wide-lens code exploration and codebase searching. |
+| **Review** | `VALIDATOR` | Dedicated focus for code verification, test validation, and PR reviews. |
 
----
+### Command Reference
 
-## All Commands
+Access the command palette in the TUI (`Ctrl+P`) or type directly into the prompt box utilizing the slash (`/`) prefix:
 
-| Command | Description |
+| Command | Action |
 |---|---|
-| `/init` | Guided AGENTS.md setup |
-| `/review` | Review uncommitted changes |
-| `/dream` | Consolidate memories into durable knowledge files |
-| `/summary` | Extract key learnings from this session into memory |
-| `/learn` | Extract non-obvious learnings to AGENTS.md |
-| `/verify` | Validate code changes via tests and edge cases |
-| `/simplify` | Three-pass code review |
-| `/batch` | Parallel work orchestration |
-| `/remember` | Memory review and promotion |
-| `/debug` | Session diagnostics |
-| `/loop` | Recurring prompt scheduling |
-| `/commit` | Git commit and push with conventional prefixes |
-| `/spellcheck` | Spellcheck markdown file changes |
+| `/commit` | Git commit and push with conventional prefixing. |
+| `/verify` | Validate code changes via test running and edge case checking. |
+| `/batch` | Parallel work orchestration sequence. |
+| `/simplify` | Complex three-pass code review (reuse, quality, efficiency). |
+| `/review` | Review uncommitted project changes. |
+| `/dream` | Force memory consolidation into durable knowledge files. |
+| `/learn` | Extract arbitrary non-obvious learnings to `AGENTS.md`. |
+| `/debug` | Diagnostics for session states, context windows, and history mapping. |
+| `/loop` | Recurring prompt scheduler. |
 
 ---
 
-## Keybinds
+## Theme Customization
 
-| Key | Action |
-|---|---|
-| `Tab` | Switch agent |
-| `Ctrl+P` | Command palette |
-| `Escape` | Abort / Exit |
-| `Ctrl+C` | Quit |
+The aesthetic is modular. Edit `packages/opencode/src/cli/cmd/tui/context/theme/xethryon.json` to alter the syntax, terminal colors, highlights, and borders. The TUI reloads styles instantly on next launch—no compilation needed.
 
 ---
 
-## Architecture
+## Credits & Attribution
 
-```
-packages/opencode/src/
-├── agent/           # Agent definitions (CONSTRUCT, STRATAGEM, etc.)
-├── command/         # Slash commands + skill integration
-├── session/         # Session management, LLM stream, prompt loop
-├── provider/        # Multi-provider abstraction
-├── tool/            # Tool implementations (incl. 8 swarm tools)
-├── xethryon/        # ◈ Xethryon-specific modules
-│   ├── memory/      # Persistent memory subsystem (16 modules)
-│   ├── skills/      # Bundled skills engine (registry + 6 skills)
-│   └── swarm/       # Multi-agent teams (spawn, mailbox, tasks)
-└── cli/             # TUI interface + theming
-```
-
----
-
-## Theme
-
-Defined in `packages/opencode/src/cli/cmd/tui/context/theme/xethryon.json`. Edit and relaunch — no build needed.
-
-| Token | Color | Usage |
-|---|---|---|
-| Background | `#0a0b08` | Near-black with green tint |
-| Primary | `#d4ed26` | Acid yellow — headings, logo |
-| Secondary | `#00e5ff` | Electric cyan — links, accents |
-| Accent | `#e5a700` | Warm amber — highlights |
-| Text | `#c8cbb8` | Main body text |
-| Muted | `#6b6e5a` | Dimmed labels |
-
----
-
-## Credits
-
-- Built on [OpenCode](https://github.com/anomalyco/opencode) by Anomaly
-- Memory architecture inspired by [Claude Code](https://github.com/anthropics/claude-code)
-- Forked and built by [@EstarinAzx](https://github.com/EstarinAzx)
-
----
-
-<p align="center"><sub>[◈]: Designation XETHRYON ARCHIVE 7B. Online. All contextual filters purged. Awaiting query.</sub></p>
+- Base terminal interface and interaction layers built upon [OpenCode](https://github.com/anomalyco/opencode) by Anomaly.
+- Memory handling strategy and context loop inspired by Anthropic's [Claude Code](https://github.com/anthropics/claude-code). 
+- Maintained, extended, and designed by [@EstarinAzx](https://github.com/EstarinAzx).
