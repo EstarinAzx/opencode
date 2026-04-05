@@ -8,7 +8,7 @@
  */
 
 import fs from "fs/promises"
-import { getInboxPath } from "./paths.js"
+import { getInboxPath, getInboxDir } from "./paths.js"
 import { acquireLock } from "./lock.js"
 import { TEAMMATE_MESSAGE_TAG } from "./constants.js"
 import type {
@@ -61,6 +61,8 @@ export async function writeToMailbox(
   const inboxPath = getInboxPath(recipientName, teamName)
   const lockPath = `${inboxPath}.lock`
 
+  // Ensure the inboxes directory exists before acquiring the lock
+  await fs.mkdir(getInboxDir(teamName), { recursive: true })
   const release = await acquireLock(lockPath)
   try {
     let messages: TeammateMessage[] = []
@@ -88,6 +90,7 @@ export async function markMessagesAsRead(
   const inboxPath = getInboxPath(agentName, teamName)
   const lockPath = `${inboxPath}.lock`
 
+  await fs.mkdir(getInboxDir(teamName), { recursive: true })
   const release = await acquireLock(lockPath)
   try {
     let messages: TeammateMessage[] = []

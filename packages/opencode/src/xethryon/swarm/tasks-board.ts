@@ -40,6 +40,8 @@ export async function createTask(
   teamName: string,
   task: Omit<Task, "id" | "createdAt" | "updatedAt">,
 ): Promise<Task> {
+  // Ensure the tasks directory exists before acquiring the lock
+  await fs.mkdir(getTasksDir(teamName), { recursive: true })
   const lockPath = `${getTasksFilePath(teamName)}.lock`
   const release = await acquireLock(lockPath)
 
@@ -80,6 +82,7 @@ export async function updateTask(
   taskId: string,
   updates: Partial<Omit<Task, "id" | "createdAt">>,
 ): Promise<Task | null> {
+  await fs.mkdir(getTasksDir(teamName), { recursive: true })
   const lockPath = `${getTasksFilePath(teamName)}.lock`
   const release = await acquireLock(lockPath)
 
@@ -109,6 +112,7 @@ export async function updateTask(
  * Delete a task by ID.
  */
 export async function deleteTask(teamName: string, taskId: string): Promise<boolean> {
+  await fs.mkdir(getTasksDir(teamName), { recursive: true })
   const lockPath = `${getTasksFilePath(teamName)}.lock`
   const release = await acquireLock(lockPath)
 
