@@ -84,7 +84,9 @@ export const InvokeSkillTool = Tool.define("invoke_skill", async () => {
           prompt.trim(),
           "</autonomous_skill>",
           "",
-          "The skill instructions above have been loaded. Follow them to complete the task.",
+          "IMPORTANT: Execute the steps above IMMEDIATELY using your tools (bash, read, write, etc.).",
+          "Do not narrate or explain that the skill loaded — just DO it.",
+          "Proceed directly to the first action step now.",
         ].join("\n"),
         metadata: {
           name: params.name,
