@@ -54,6 +54,7 @@ import { DialogForkFromTimeline } from "./dialog-fork-from-timeline"
 import { DialogSessionRename } from "../../component/dialog-session-rename"
 import { Sidebar } from "./sidebar"
 import { SubagentFooter } from "./subagent-footer.tsx"
+import { isAutonomyEnabled } from "@/xethryon/autonomy"
 import { Flag } from "@/flag/flag"
 import { LANGUAGE_EXTENSIONS } from "@/lsp/language"
 import parsers from "../../../../../../parsers-config.ts"
@@ -199,7 +200,7 @@ export function Session() {
     } else if (part.tool === "plan_enter") {
       local.agent.set("plan")
       lastSwitch = part.id
-    } else if (part.tool === "switch_agent") {
+    } else if (part.tool === "switch_agent" && isAutonomyEnabled()) {
       try {
         const result = JSON.parse(part.state.output ?? "{}")
         if (result.agent) {
@@ -1316,31 +1317,57 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
     return props.message.time.completed - user.time.created
   })
 
-  // Detect if this message contains a completed switch_agent → use NEW mode for footer
-  const effectiveAgent = createMemo(() => {
-    const switchPart = props.parts.find(
-      (x) => x.type === "tool" && x.tool === "switch_agent" && x.state?.status === "completed",
-    ) as any
-    if (switchPart?.state?.output) {
-      try {
-        const result = JSON.parse(switchPart.state.output)
-        if (result.agent) return result.agent
-      } catch {}
+  // Detect if this or a preceding assistant message contains a switch_agent tool → use NEW mode for footer
+  // The switch_agent tool call and the text response are typically in DIFFERENT messages
+  // (tool calls finish with "tool-calls", then a new assistant message continues)
+  const switchedAgent = createMemo(() => {
+    // First check this message's own parts
+    for (const part of props.parts) {
+      if (part.type !== "tool") continue
+      if ((part as any).tool !== "switch_agent") continue
+      const state = (part as any).state
+      if (!state) continue
+      if (state.input?.agent) return state.input.agent as string
+      if (state.status === "completed" && state.output) {
+        try {
+          const result = JSON.parse(state.output)
+          if (result.agent) return result.agent as string
+        } catch {}
+      }
     }
-    return props.message.agent
+    // Then check preceding assistant messages in the same conversation thread
+    const allMsgs = messages()
+    for (let i = allMsgs.length - 1; i >= 0; i--) {
+      const msg = allMsgs[i]
+      if (msg.role !== "assistant") continue
+      if (msg.id === props.message.id) continue
+      // Only check messages that are parents/siblings (same parentID)
+      if ((msg as any).parentID !== props.message.parentID) continue
+      const msgParts = sync.data.part[msg.id] ?? []
+      for (const part of msgParts) {
+        if (part.type !== "tool") continue
+        if ((part as any).tool !== "switch_agent") continue
+        const state = (part as any).state
+        if (!state) continue
+        if (state.input?.agent) return state.input.agent as string
+        if (state.status === "completed" && state.output) {
+          try {
+            const result = JSON.parse(state.output)
+            if (result.agent) return result.agent as string
+          } catch {}
+        }
+      }
+    }
+    return null
   })
 
-  const effectiveMode = createMemo(() => {
-    const switchPart = props.parts.find(
-      (x) => x.type === "tool" && x.tool === "switch_agent" && x.state?.status === "completed",
-    ) as any
-    if (switchPart?.state?.output) {
-      try {
-        const result = JSON.parse(switchPart.state.output)
-        if (result.agent) return result.agent
-      } catch {}
-    }
-    return props.message.mode
+  const effectiveAgent = createMemo(() => switchedAgent() ?? props.message.agent)
+  const effectiveMode = createMemo(() => switchedAgent() ?? props.message.mode)
+
+  const effectiveMessage = createMemo(() => {
+    const switched = switchedAgent()
+    if (!switched) return props.message
+    return { ...props.message, agent: switched, mode: switched }
   })
 
   const keybind = useKeybind()
@@ -1356,7 +1383,7 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
                 last={index() === props.parts.length - 1}
                 component={component()}
                 part={part as any}
-                message={props.message}
+                message={effectiveMessage()}
               />
             </Show>
           )
