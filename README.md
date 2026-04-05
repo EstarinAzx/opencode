@@ -89,7 +89,15 @@ Ships with a dark Cyberpunk-inspired color palette. Editable via `packages/openc
 
 ## Install
 
-### Prerequisites
+### Quick Install (Windows)
+
+```powershell
+irm https://raw.githubusercontent.com/EstarinAzx/XETHRYON/xethryon/install.ps1 | iex
+```
+
+Downloads the latest release binary, puts it in `%LOCALAPPDATA%\xethryon\bin`, and adds it to your PATH.
+
+### Prerequisites (building from source)
 
 - [Bun](https://bun.sh) (v1.1+)
 - Git
