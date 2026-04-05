@@ -1522,7 +1522,7 @@ function TextPart(props: { last: boolean; part: TextPart; message: AssistantMess
                 content={props.part.text.trim()}
                 conceal={ctx.conceal()}
                 fg={theme.markdownText}
-                bg={theme.background}
+                bg={theme.backgroundPanel}
               />
             </Match>
             <Match when={!Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
