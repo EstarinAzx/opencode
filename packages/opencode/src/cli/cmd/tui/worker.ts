@@ -157,6 +157,13 @@ export const rpc = {
   async setWorkspace(input: { workspaceID?: string }) {
     startEventStream({ directory: process.cwd(), workspaceID: input.workspaceID })
   },
+  async setAutonomy(input: { enabled: boolean }) {
+    if (input.enabled) {
+      process.env.XETHRYON_AUTONOMY = "1"
+    } else {
+      delete process.env.XETHRYON_AUTONOMY
+    }
+  },
   async shutdown() {
     Log.Default.info("worker shutting down")
     if (eventStream.abort) eventStream.abort.abort()

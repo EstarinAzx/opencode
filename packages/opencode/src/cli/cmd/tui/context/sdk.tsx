@@ -6,6 +6,7 @@ import { batch, onCleanup, onMount } from "solid-js"
 export type EventSource = {
   on: (handler: (event: Event) => void) => () => void
   setWorkspace?: (workspaceID?: string) => void
+  setAutonomy?: (enabled: boolean) => void
 }
 
 export const { use: useSDK, provider: SDKProvider } = createSimpleContext({
@@ -121,6 +122,9 @@ export const { use: useSDK, provider: SDKProvider } = createSimpleContext({
         sdk = createSDK()
         props.events?.setWorkspace?.(next)
         if (!props.events) startSSE()
+      },
+      setAutonomy(enabled: boolean) {
+        props.events?.setAutonomy?.(enabled)
       },
       url: props.url,
     }

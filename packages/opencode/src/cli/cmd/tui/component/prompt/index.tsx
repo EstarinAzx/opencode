@@ -948,6 +948,7 @@ export function Prompt(props: PromptProps) {
                   const next = !store.autonomy
                   setStore("autonomy", next)
                   setAutonomy(next)
+                  sdk.setAutonomy(next)
                   e.preventDefault()
                   return
                 }

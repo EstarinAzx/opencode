@@ -47,6 +47,9 @@ function createEventSource(client: RpcClient): EventSource {
     setWorkspace: (workspaceID) => {
       void client.call("setWorkspace", { workspaceID })
     },
+    setAutonomy: (enabled) => {
+      void client.call("setAutonomy", { enabled })
+    },
   }
 }
 
