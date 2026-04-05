@@ -34,6 +34,8 @@ The agent sees branch name, uncommitted changes, merge/rebase state, and ahead/b
 
 Toggle with `XETHRYON_GIT_AWARE=0`.
 
+![Git-aware context — agent knows branch, uncommitted changes, and remote status](assets/gitaware.png)
+
 ### Autonomy Mode (`F4`)
 When enabled, the agent operates with more initiative.
 
