@@ -46,6 +46,38 @@ async function getSchemaModule() {
 }
 
 /**
+ * Map LLM-friendly agent type names to valid internal agent IDs.
+ * Falls back to "build" for unknown types.
+ */
+const AGENT_ALIASES: Record<string, string> = {
+  coder: "build",
+  code: "build",
+  writer: "build",
+  builder: "build",
+  construct: "build",
+  planner: "plan",
+  architect: "plan",
+  planning: "plan",
+  explorer: "explore",
+  recon: "explore",
+  reader: "explore",
+  researcher: "explore",
+  verifier: "verification",
+  validator: "verification",
+  tester: "verification",
+  review: "verification",
+  coord: "coordinator",
+  coordinate: "coordinator",
+  orchestrator: "coordinator",
+}
+
+function resolveAgentType(agentType?: string): string {
+  if (!agentType) return "build"
+  const lower = agentType.toLowerCase().trim()
+  return AGENT_ALIASES[lower] ?? lower
+}
+
+/**
  * Spawn a teammate as an in-process sub-session.
  *
  * Flow:
@@ -144,7 +176,7 @@ async function runTeammateSession(
         messageID,
         sessionID: session.id,
         parts: promptParts,
-        agent: config.agentType,
+        agent: resolveAgentType(config.agentType),
       })
 
       // Prompt completed — teammate is idle
