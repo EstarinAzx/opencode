@@ -16,6 +16,14 @@ The agent extracts learnings from every conversation and stores them as durable 
 - AutoDream consolidation after 24h or 5 sessions
 - Stored at `~/.xethryon/projects/<project>/memory/`
 
+**Session 1** — teaching a convention:
+
+![Session 1 — agent stores the API convention to persistent memory](assets/persistent_memory_session1.png)
+
+**Session 2** — new chat, recalls it without being reminded:
+
+![Session 2 — agent recalls the kebab-case and response format convention from memory](assets/persisntent_memory_session2.png)
+
 ### Self-Reflection
 Before presenting code to the user, the agent reviews its own output: did it address the actual request, are there missing edge cases, does it follow existing patterns. If issues are found, it revises silently — the user only sees the corrected result.
 
