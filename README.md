@@ -53,25 +53,15 @@ Parallel workflows via isolated sub-sessions with file-based IPC and shared task
 
 Tools: `team_create`, `team_delete`, `send_message`, `task_create`, `task_get`, `task_update`, `task_list`, `task_stop`.
 
-<details>
-<summary>Swarm in action</summary>
-
 ![Swarm orchestration — 3 agents coordinating a sequential file pipeline](assets/agent_swarm_sample.png)
 
 ![Spawned sub-sessions in the session list](assets/agent_swarm_session_list_sample.png)
-
-</details>
 
 ### Agent Modes
 
 Switch manually with `Tab` or let autonomy handle it.
 
-<details>
-<summary>Mode switching in action</summary>
-
 ![Agent mode identification and switching between CONSTRUCT and ARCHITECT](assets/autonomous_mode_switch_sample.png)
-
-</details>
 
 | Mode | Codename | Purpose |
 |------|----------|---------|
