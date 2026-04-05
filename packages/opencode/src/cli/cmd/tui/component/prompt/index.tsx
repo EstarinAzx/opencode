@@ -633,19 +633,6 @@ export function Prompt(props: PromptProps) {
     // Filter out text parts (pasted content) since they're now expanded inline
     const nonTextParts = store.prompt.parts.filter((part) => part.type !== "text")
 
-    // Inject autonomy instructions into the message when enabled
-    if (store.autonomy) {
-      inputText = [
-        "<autonomy-mode>",
-        "AUTONOMY MODE IS ACTIVE. You can dynamically switch agent mode using the switch_agent tool.",
-        "Modes: build (CONSTRUCT), plan (ARCHITECT), explore (RECON), coordinator (COORDINATE), verification (VALIDATOR).",
-        "Switch when the task genuinely requires it. Don't switch without reason.",
-        "</autonomy-mode>",
-        "",
-        inputText,
-      ].join("\n")
-    }
-
     // Capture mode before it gets reset
     const currentMode = store.mode
     const variant = local.model.variant.current()

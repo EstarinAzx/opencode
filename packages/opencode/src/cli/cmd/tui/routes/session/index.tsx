@@ -199,6 +199,14 @@ export function Session() {
     } else if (part.tool === "plan_enter") {
       local.agent.set("plan")
       lastSwitch = part.id
+    } else if (part.tool === "switch_agent") {
+      try {
+        const result = JSON.parse(part.state.output ?? "{}")
+        if (result.agent) {
+          local.agent.set(result.agent)
+          lastSwitch = part.id
+        }
+      } catch {}
     }
   })
 
