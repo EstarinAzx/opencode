@@ -189,6 +189,12 @@ export namespace ToolRegistry {
             return model.providerID === ProviderID.opencode || Flag.OPENCODE_ENABLE_EXA
           }
 
+          // Swarm tools are exclusive to COORDINATE mode
+          const swarmTools = ["team_create", "team_delete", "send_message", "task_create", "task_get", "task_update", "task_list", "task_stop"]
+          if (swarmTools.includes(tool.id) && agent?.name !== "coordinator") {
+            return false
+          }
+
           const usePatch =
             !!Env.get("OPENCODE_E2E_LLM_URL") ||
             (model.modelID.includes("gpt-") && !model.modelID.includes("oss") && !model.modelID.includes("gpt-4"))
