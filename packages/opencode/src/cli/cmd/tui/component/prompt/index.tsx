@@ -1097,7 +1097,7 @@ export function Prompt(props: PromptProps) {
                     <b>{(() => {
                       if (store.mode === "shell") return "SHELL_MODE"
                       const name = local.agent.current().name
-                      const cyberNames: Record<string, string> = { build: "CONSTRUCT", plan: "ARCHITECT", coordinator: "COORDINATE", explore: "RECON", verification: "VALIDATOR" }
+                      const cyberNames: Record<string, string> = { build: "CONSTRUCT", plan: "ARCHITECT", coordinator: "COORDINATE", explore: "EXPLORE", verification: "VALIDATE" }
                       return cyberNames[name] ?? name.toUpperCase()
                     })()}</b>
                   </span>

@@ -43,9 +43,9 @@ When enabled, the agent operates with more initiative.
 
 ```
 "plan a refactor of the auth module"     → switches to ARCHITECT
-"explore how the payment system works"   → switches to RECON
+"explore how the payment system works"   → switches to EXPLORE
 "create a team to fix these 5 bugs"      → switches to COORDINATE
-"verify the test suite passes"           → switches to VALIDATOR
+"verify the test suite passes"           → switches to VALIDATE
 planning done, time to implement         → switches back to CONSTRUCT
 ```
 
@@ -78,8 +78,8 @@ Switch manually with `Tab` or let autonomy handle it.
 | Build | `CONSTRUCT` | Full-access code implementation |
 | Plan | `ARCHITECT` | Read-only architectural analysis |
 | Manage | `COORDINATE` | Multi-agent team orchestration |
-| Search | `RECON` | Codebase exploration and research |
-| Review | `VALIDATOR` | Test validation and code review |
+| Search | `EXPLORE` | Codebase exploration and research |
+| Review | `VALIDATE` | Test validation and code review |
 
 ### Provider Support
 Bring your own keys. Works with Anthropic, OpenAI, Google, OpenRouter, MiniMax, and local models.
