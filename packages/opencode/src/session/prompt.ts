@@ -1574,6 +1574,11 @@ NOTE: At any point in time through this workflow you should feel free to ask the
                 // Autonomy prompt — tells the agent about mode switching + skill self-invocation
                 const autonomyPrompt = SystemPrompt.autonomy()
 
+                // Inject current mode identity so the model knows what it actually is
+                const modeNames: Record<string, string> = { build: "CONSTRUCT", plan: "ARCHITECT", coordinator: "COORDINATE", explore: "EXPLORE", verification: "VALIDATE" }
+                const currentMode = modeNames[agent.name] ?? agent.name.toUpperCase()
+                const modeIdentity = `<current_mode>${currentMode}</current_mode>\nYou are currently operating in ${currentMode} mode. If a previous switch_agent call in the conversation history shows a different mode, ignore it — THIS is your actual active mode.`
+
                 const system = [
                   ...env,
                   ...(skills ? [skills] : []),
@@ -1582,6 +1587,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
                   ...(recalledMemories ? [recalledMemories] : []),
                   ...(gitCtx ? [gitCtx] : []),
                   ...(autonomyPrompt ? [autonomyPrompt] : []),
+                  modeIdentity,
                 ]
                 const format = lastUser.format ?? { type: "text" as const }
                 if (format.type === "json_schema") system.push(STRUCTURED_OUTPUT_SYSTEM_PROMPT)
